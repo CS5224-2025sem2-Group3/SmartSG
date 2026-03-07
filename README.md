@@ -1,3 +1,6 @@
-# Vue 3 + Vite
+# FrontEnd for SmartSG Student Living
+Frontend MVP built with Vue 3 + Vite
 
-FrontEnd for SmartSG Student Living
+## Setup
+npm install
+npm run dev
