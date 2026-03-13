@@ -1,3 +1,6 @@
+-- TODO: Check if user profile attributes ok
+-- TODO: Check if listing need to put school distance, POI number etc
+
 CREATE TABLE "User" (
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -5,26 +8,45 @@ CREATE TABLE "User" (
     password_hash TEXT NOT NULL,
     school VARCHAR(150)
 );
+
+CREATE TYPE sleep_schedule_enum AS ENUM (
+    'early_bird',
+    'normal',
+    'night_owl'
+);
+
+CREATE TYPE cleanliness_enum AS ENUM (
+    'low',
+    'medium',
+    'high'
+);
+
+CREATE TYPE gender_enum AS ENUM (
+    'male',
+    'female'
+);
+
 CREATE TABLE UserProfile (
     user_id INT PRIMARY KEY,
-    move_in_window VARCHAR(50), -- should be datetime
-    lease_preference VARCHAR(50), -- how many month
-    sleep_schedule VARCHAR(50), -- enum
-    cleanliness VARCHAR(50), -- enum
-    smoking BOOLEAN,
-    gender VARCHAR(20), -- enum
+    move_in_window DATE,  -- when user wants to move in
+    lease_preference INT, -- lease duration in months
+    sleep_schedule sleep_schedule_enum, -- early_bird, normal, night_owl
+    cleanliness cleanliness_enum, -- low, medium, high
+    smoking BOOLEAN, --true or false
+    gender gender_enum, -- male, female
 
     CONSTRAINT fk_userprofile_user
         FOREIGN KEY (user_id)
         REFERENCES "User"(user_id)
         ON DELETE CASCADE
 );
+
 CREATE TABLE Listing (
     listing_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     address TEXT,
     rent NUMERIC(10,2),
-    lease VARCHAR(50), -- how many month
+    lease INT, -- lease duration in months
     flat_type VARCHAR(50),
     available_from DATE
 );
@@ -47,10 +69,16 @@ CREATE TABLE Favorites (
     CONSTRAINT unique_favorite UNIQUE(user_id, listing_id)
 );
 
+CREATE TYPE group_status_enum AS ENUM (
+    'recruiting',
+    'full',
+    'closed'
+);
+
 CREATE TABLE "Group" (
     group_id SERIAL PRIMARY KEY,
     listing_id INT NOT NULL,
-    status VARCHAR(50), -- recruiting, full, closed
+    status group_status_enum DEFAULT 'recruiting', -- recruiting, full, closed
     max_people INT,
     cur_people INT DEFAULT 0,
 
@@ -60,10 +88,15 @@ CREATE TABLE "Group" (
         ON DELETE CASCADE
 );
 
+CREATE TYPE group_role_enum AS ENUM (
+    'leader',
+    'member'
+);
+
 CREATE TABLE GroupMember (
     group_id INT NOT NULL,
     user_id INT NOT NULL,
-    role VARCHAR(50), -- leader, member
+    role group_role_enum DEFAULT 'member', -- leader, member
 
     PRIMARY KEY (group_id, user_id),
 
@@ -78,12 +111,18 @@ CREATE TABLE GroupMember (
         ON DELETE CASCADE
 );
 
+CREATE TYPE request_status_enum AS ENUM (
+    'pending',
+    'accepted',
+    'rejected'
+);
+
 CREATE TABLE GroupRequest (
     request_id SERIAL PRIMARY KEY,
     group_id INT NOT NULL,
     sender_id INT NOT NULL,
     receiver_id INT NOT NULL,
-    status VARCHAR(50), -- pending, accepted, rejected
+    status request_status_enum DEFAULT 'pending', -- pending, accepted, rejected
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_request_group
