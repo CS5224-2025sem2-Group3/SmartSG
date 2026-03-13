@@ -84,7 +84,7 @@ export function getOrCreateGroupForListing(listingId, creatorProfile) {
   return group
 }
 
-export function getDiscoverableRoommates() {
+export function getDiscoverableHousemates() {
   if (!store.currentUserId) return []
 
   return store.users
@@ -97,7 +97,7 @@ export function getDiscoverableRoommates() {
     }))
 }
 
-export function recommendRoommates(listingId, userProfile) {
+export function recommendHousemates(listingId, idealProfile) {
   const listing = getListingById(listingId)
   if (!listing || !store.currentUserId) return []
 
@@ -106,19 +106,19 @@ export function recommendRoommates(listingId, userProfile) {
     ? existingGroup.members.map((m) => m.userId)
     : [store.currentUserId]
 
-  return getDiscoverableRoommates()
+  return getDiscoverableHousemates()
     .filter((candidate) => !existingMemberIds.includes(candidate.userId))
     .filter((candidate) => {
       const minRequiredBudget = listing.totalRent / Math.max(2, listing.rooms)
       return Number(candidate.budgetMax || 0) >= minRequiredBudget
     })
-    .filter((candidate) => overlapMoveIn(userProfile.moveInWindow, candidate.moveInWindow))
+    .filter((candidate) => overlapMoveIn(idealProfile.moveInWindow, candidate.moveInWindow))
     .filter((candidate) =>
-      compatibleLease(userProfile.leasePreference, candidate.leasePreference, listing.leaseOptions)
+      compatibleLease(idealProfile.leasePreference, candidate.leasePreference, listing.leaseOptions)
     )
     .map((candidate) => ({
       ...candidate,
-      matchScore: habitScore(userProfile, candidate)
+      matchScore: habitScore(idealProfile, candidate)
     }))
     .sort((a, b) => b.matchScore - a.matchScore)
 }

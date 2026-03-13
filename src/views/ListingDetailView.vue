@@ -3,19 +3,21 @@
     <section class="card" style="margin-bottom: 18px;">
       <div class="hero">
         <img :src="listing.image" :alt="listing.title" class="hero-image" />
-        <div>
-          <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px;">
-            <h2 style="margin: 0;">{{ listing.title }}</h2>
+        <div class="hero-content">
+          <div class="hero-title-row">
+            <h2 class="hero-title">{{ listing.title }}</h2>
             <span class="badge">{{ listing.type === 'whole' ? 'Whole Unit' : 'Room' }}</span>
           </div>
 
-          <p><strong>Total Rent:</strong> SGD {{ listing.totalRent }}</p>
-          <p><strong>Available From:</strong> {{ listing.availableFrom }} ({{ listing.moveInLabel }})</p>
-          <p><strong>Lease Options:</strong> {{ listing.leaseOptions.join(' / ') }} months</p>
-          <p><strong>Rooms:</strong> {{ listing.rooms }}</p>
-          <p><strong>Status:</strong> {{ listing.status }}</p>
+          <div class="hero-stats">
+            <p><strong>Total Rent:</strong> SGD {{ listing.totalRent }}</p>
+            <p><strong>Available From:</strong> {{ listing.availableFrom }} ({{ listing.moveInLabel }})</p>
+            <p><strong>Lease Options:</strong> {{ listing.leaseOptions.join(' / ') }} months</p>
+            <p><strong>Rooms:</strong> {{ listing.rooms }}</p>
+            <p><strong>Status:</strong> {{ listing.status }}</p>
+          </div>
 
-          <div style="margin-top: 12px;">
+          <div class="facility-row">
             <span class="mini-badge" v-for="f in listing.facilities" :key="f">{{ f }}</span>
           </div>
         </div>
@@ -36,75 +38,79 @@
       </div>
 
       <div v-else>
-        <p>This is a room listing. You can decide individually without roommate matching.</p>
+        <p>This is a room listing. You can decide individually without housemate matching.</p>
       </div>
     </section>
 
     <section v-if="listing.type === 'whole'" class="grid" style="grid-template-columns: 420px 1fr;">
-      <div class="card">
-        <h3 class="section-title">Create Your Roommate Profile</h3>
+      <div class="card filter-card">
+        <h3 class="section-title">Fill in Your Ideal Housemate Profile</h3>
+        <p class="muted filter-copy">
+          This filter is separate from My Profile. Use it to describe the kind of housemate you want
+          for this listing. It is only used for the current matching session.
+        </p>
 
-        <div style="margin-bottom: 12px;">
-          <label class="label">Budget Max (SGD)</label>
-          <input class="input" type="number" v-model.number="profile.budgetMax" />
+        <div class="form-block">
+          <label class="label">Preferred Budget Max (SGD)</label>
+          <input class="input" type="number" v-model.number="idealProfile.budgetMax" />
         </div>
 
-        <div style="margin-bottom: 12px;">
-          <label class="label">Move-in Window</label>
-          <select v-model="profile.moveInWindow">
+        <div class="form-block">
+          <label class="label">Preferred Move-in Window</label>
+          <select v-model="idealProfile.moveInWindow">
             <option value="Early August">Early August</option>
             <option value="Mid August">Mid August</option>
             <option value="Late August">Late August</option>
           </select>
         </div>
 
-        <div style="margin-bottom: 12px;">
-          <label class="label">Lease Preference</label>
-          <select v-model="profile.leasePreference">
+        <div class="form-block">
+          <label class="label">Preferred Lease Preference</label>
+          <select v-model="idealProfile.leasePreference">
             <option value="6">6 months</option>
             <option value="12">12 months</option>
             <option value="6-12">Flexible (6-12)</option>
           </select>
         </div>
 
-        <div style="margin-bottom: 12px;">
-          <label class="label">Sleep Habit</label>
-          <select v-model="profile.sleepHabit">
+        <div class="form-block">
+          <label class="label">Preferred Sleep Habit</label>
+          <select v-model="idealProfile.sleepHabit">
             <option value="Early Sleeper">Early Sleeper</option>
             <option value="Regular">Regular</option>
             <option value="Night Owl">Night Owl</option>
           </select>
         </div>
 
-        <div style="margin-bottom: 12px;">
-          <label class="label">Study Environment Preference</label>
-          <select v-model="profile.studyPreference">
+        <div class="form-block">
+          <label class="label">Preferred Study Environment</label>
+          <select v-model="idealProfile.studyPreference">
             <option value="Quiet">Quiet</option>
             <option value="Okay with Normal Activity">Okay with Normal Activity</option>
           </select>
         </div>
 
-        <div style="margin-bottom: 12px;">
-          <label class="label">Smoking Preference</label>
-          <select v-model="profile.smoking">
+        <div class="form-block">
+          <label class="label">Smoking Tolerance</label>
+          <select v-model="idealProfile.smoking">
             <option value="No Smoking">No Smoking</option>
             <option value="Okay with Smoking">Okay with Smoking</option>
             <option value="I Smoke">I Smoke</option>
           </select>
         </div>
 
-        <div style="margin-bottom: 16px;">
-          <label class="label">Cleanliness Habit</label>
-          <select v-model="profile.cleanliness">
+        <div class="form-block form-block-last">
+          <label class="label">Preferred Cleanliness Habit</label>
+          <select v-model="idealProfile.cleanliness">
             <option value="Very Clean">Very Clean</option>
             <option value="Average">Average</option>
             <option value="Casual">Casual</option>
           </select>
         </div>
 
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <div class="action-row">
           <button class="btn btn-primary" @click="loadMatches">
-            Match Roommates
+            Match Housemates
           </button>
           <button class="btn btn-secondary" @click="createGroupOnly">
             Create Group
@@ -117,10 +123,10 @@
       </div>
 
       <div class="card">
-        <h3 class="section-title">Recommended Roommates</h3>
+        <h3 class="section-title">Recommended Housemates</h3>
 
-        <div v-if="matches.length === 0" class="muted">
-          Save your roommate profile first to see recommended candidates.
+        <div v-if="matches.length === 0" class="muted empty-state">
+          Use the ideal housemate filter above to see recommended candidates.
         </div>
 
         <div v-else class="grid">
@@ -157,11 +163,14 @@
 import { computed, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getListingById, getRecommendedGroupSize } from '../services/listingService'
-import { saveUserProfile, getCurrentUserProfile, getDefaultProfile } from '../services/profileService'
+import {
+  getCurrentUserProfile,
+  getDefaultProfile
+} from '../services/profileService'
 import {
   getOrCreateGroupForListing,
   getGroupByListingId,
-  recommendRoommates
+  recommendHousemates
 } from '../services/groupService'
 import { inviteCandidateToGroup } from '../services/invitationService'
 
@@ -169,25 +178,22 @@ const route = useRoute()
 const listingId = Number(route.params.id)
 const listing = getListingById(listingId)
 
-const existingProfile = getCurrentUserProfile()
-
-const profile = reactive(existingProfile || getDefaultProfile())
+const idealProfile = reactive(getDefaultProfile())
 
 const matches = ref([])
 const group = computed(() => getGroupByListingId(listingId))
 
 const recommended = computed(() => {
-  return getRecommendedGroupSize(listing, profile.budgetMax)
+  return getRecommendedGroupSize(listing, idealProfile.budgetMax)
 })
 
 function loadMatches() {
-  saveUserProfile({ ...profile })
-  matches.value = recommendRoommates(listingId, profile)
+  matches.value = recommendHousemates(listingId, idealProfile)
 }
 
 function createGroupOnly() {
-  saveUserProfile({ ...profile })
-  getOrCreateGroupForListing(listingId, profile)
+  const myProfile = getCurrentUserProfile() || getDefaultProfile()
+  getOrCreateGroupForListing(listingId, myProfile)
   alert('Group created or joined for this listing.')
 }
 
@@ -207,34 +213,126 @@ function invite(candidateId) {
   display: grid;
   grid-template-columns: 340px 1fr;
   gap: 18px;
+  align-items: stretch;
 }
 
 .hero-image {
   width: 100%;
   height: 240px;
   object-fit: cover;
-  border-radius: 14px;
-  background: #e5e7eb;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #dbeafe, #e5e7eb);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-title-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.hero-title {
+  margin: 0;
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  letter-spacing: -0.03em;
+}
+
+.hero-stats p {
+  margin: 0 0 10px;
+}
+
+.facility-row {
+  margin-top: 14px;
 }
 
 .mini-badge {
-  background: #f3f4f6;
+  background: rgba(241, 245, 249, 0.92);
   color: #374151;
   border-radius: 999px;
-  padding: 4px 10px;
+  padding: 6px 11px;
   font-size: 12px;
   margin-right: 8px;
   display: inline-block;
   margin-bottom: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.filter-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.filter-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 150px;
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.12), rgba(191, 219, 254, 0.04));
+  pointer-events: none;
+}
+
+.filter-copy {
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.form-block {
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.form-block-last {
+  margin-bottom: 18px;
+}
+
+.action-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
 }
 
 .candidate-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 14px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 18px;
+  padding: 16px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+}
+
+.candidate-card p {
+  margin: 0 0 8px;
+}
+
+.empty-state {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.72);
+  padding: 18px;
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -4,7 +4,7 @@
     <p class="muted">Groups that include the logged-in user.</p>
 
     <div v-if="myGroups.length === 0" class="card">
-      No groups yet. Go to a whole-unit listing and start a roommate group.
+      No groups yet. Go to a whole-unit listing and start a housemate group.
     </div>
 
     <div v-else class="grid">

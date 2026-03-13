@@ -1,9 +1,15 @@
 <template>
   <div class="grid" style="grid-template-columns: 320px 1fr;">
-    <section class="card">
+    <section class="card filter-panel">
+      <div class="panel-intro">
+        <span class="panel-kicker">Student Rental Planner</span>
       <h2 class="section-title">Search Filters</h2>
+        <p class="muted panel-copy">
+          Narrow by commute, budget, and move-in timing to find a place that works for both campus life and shared living.
+        </p>
+      </div>
 
-      <div style="margin-bottom: 14px;">
+      <div class="field-row">
         <label class="label">University</label>
         <select v-model="filters.university">
           <option v-for="u in universities" :key="u.value" :value="u.value">
@@ -12,17 +18,17 @@
         </select>
       </div>
 
-      <div style="margin-bottom: 14px;">
+      <div class="field-row">
         <label class="label">Monthly Budget Max (SGD)</label>
         <input class="input" v-model.number="filters.budgetMax" type="number" placeholder="e.g. 1500" />
       </div>
 
-      <div style="margin-bottom: 14px;">
+      <div class="field-row">
         <label class="label">Maximum Commute Time (mins)</label>
         <input class="input" v-model.number="filters.commuteMax" type="number" placeholder="e.g. 30" />
       </div>
 
-      <div style="margin-bottom: 14px;">
+      <div class="field-row">
         <label class="label">Move-in Window</label>
         <select v-model="filters.moveInWindow">
           <option value="">Any</option>
@@ -32,7 +38,7 @@
         </select>
       </div>
 
-      <div style="margin-bottom: 14px;">
+      <div class="field-row">
         <label class="label">Lease Length</label>
         <select v-model="filters.leaseLength">
           <option value="">Any</option>
@@ -41,7 +47,7 @@
         </select>
       </div>
 
-      <div style="margin-bottom: 16px;">
+      <div class="field-row field-row-last">
         <label class="label">Facilities</label>
 
         <label class="checkbox-row">
@@ -73,11 +79,20 @@
             {{ results.length }} matching listings
           </p>
         </div>
+        <p class="result-copy">
+          Designed for students balancing commute, rent, and the right housemate setup.
+        </p>
       </div>
 
       <div class="list-grid">
         <article class="card listing-card" v-for="listing in results" :key="listing.id">
-          <img :src="listing.image" :alt="listing.title" class="listing-image" />
+          <div class="listing-media">
+            <img :src="listing.image" :alt="listing.title" class="listing-image" />
+            <div class="listing-overlay">
+              <span>{{ listing.moveInLabel }}</span>
+              <span>{{ listing.commuteTime[filters.university] }} min to {{ filters.university }}</span>
+            </div>
+          </div>
 
           <div class="listing-body">
             <div class="title-row">
@@ -162,11 +177,72 @@ function toggleFav(id) {
 <style scoped>
 .result-header {
   margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+  flex-wrap: wrap;
 }
 
 .list-grid {
   display: grid;
   gap: 16px;
+}
+
+.filter-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.filter-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 160px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(245, 158, 11, 0.05));
+  pointer-events: none;
+}
+
+.panel-intro,
+.field-row {
+  position: relative;
+  z-index: 1;
+}
+
+.panel-intro {
+  margin-bottom: 18px;
+}
+
+.panel-kicker {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(221, 246, 239, 0.96);
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.panel-copy {
+  max-width: 28ch;
+}
+
+.field-row {
+  margin-bottom: 14px;
+}
+
+.field-row-last {
+  margin-bottom: 16px;
+}
+
+.result-copy {
+  max-width: 34ch;
+  margin: 0;
+  color: #5b6b85;
+  text-align: right;
 }
 
 .listing-card {
@@ -176,12 +252,37 @@ function toggleFav(id) {
   overflow: hidden;
 }
 
+.listing-media {
+  position: relative;
+}
+
 .listing-image {
   width: 100%;
   height: 100%;
   min-height: 220px;
   object-fit: cover;
   background: #e5e7eb;
+}
+
+.listing-overlay {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.listing-overlay span {
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  color: #1f2937;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .listing-body {
@@ -207,11 +308,12 @@ function toggleFav(id) {
 }
 
 .mini-badge {
-  background: #f3f4f6;
+  background: rgba(241, 245, 249, 0.92);
   color: #374151;
   border-radius: 999px;
-  padding: 4px 10px;
+  padding: 5px 10px;
   font-size: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 .actions {
@@ -231,5 +333,20 @@ function toggleFav(id) {
   align-items: center;
   gap: 8px;
   margin: 8px 0;
+  color: #334155;
+}
+
+@media (max-width: 980px) {
+  .listing-card {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-image {
+    min-height: 240px;
+  }
+
+  .result-copy {
+    text-align: left;
+  }
 }
 </style>

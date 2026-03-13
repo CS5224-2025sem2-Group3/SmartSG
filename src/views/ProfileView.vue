@@ -1,17 +1,20 @@
 <template>
   <div class="profile-wrap">
     <section class="card profile-card">
-      <h2 class="section-title">My Roommate Profile</h2>
-      <p class="muted">
-        Update your roommate preferences here. Other users can be matched with you based on this profile.
-      </p>
+      <div class="profile-header">
+        <span class="profile-kicker">Personal Preferences</span>
+        <h2 class="section-title">My Profile</h2>
+        <p class="muted">
+          Other users can be matched with you based on this profile.
+        </p>
+      </div>
 
-      <div style="margin-bottom: 12px;">
+      <div class="field-block">
         <label class="label">Budget Max (SGD)</label>
         <input class="input" type="number" v-model.number="profile.budgetMax" />
       </div>
 
-      <div style="margin-bottom: 12px;">
+      <div class="field-block">
         <label class="label">Move-in Window</label>
         <select v-model="profile.moveInWindow">
           <option value="Early August">Early August</option>
@@ -20,7 +23,7 @@
         </select>
       </div>
 
-      <div style="margin-bottom: 12px;">
+      <div class="field-block">
         <label class="label">Lease Preference</label>
         <select v-model="profile.leasePreference">
           <option value="6">6 months</option>
@@ -29,7 +32,7 @@
         </select>
       </div>
 
-      <div style="margin-bottom: 12px;">
+      <div class="field-block">
         <label class="label">Sleep Habit</label>
         <select v-model="profile.sleepHabit">
           <option value="Early Sleeper">Early Sleeper</option>
@@ -38,7 +41,7 @@
         </select>
       </div>
 
-      <div style="margin-bottom: 12px;">
+      <div class="field-block">
         <label class="label">Study Environment Preference</label>
         <select v-model="profile.studyPreference">
           <option value="Quiet">Quiet</option>
@@ -46,7 +49,7 @@
         </select>
       </div>
 
-      <div style="margin-bottom: 12px;">
+      <div class="field-block">
         <label class="label">Smoking Preference</label>
         <select v-model="profile.smoking">
           <option value="No Smoking">No Smoking</option>
@@ -55,7 +58,7 @@
         </select>
       </div>
 
-      <div style="margin-bottom: 16px;">
+      <div class="field-block field-block-last">
         <label class="label">Cleanliness Habit</label>
         <select v-model="profile.cleanliness">
           <option value="Very Clean">Very Clean</option>
@@ -97,11 +100,50 @@ function saveProfile() {
 .profile-wrap {
   display: flex;
   justify-content: center;
+  padding-top: 6px;
 }
 
 .profile-card {
   width: 100%;
   max-width: 560px;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 140px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(14, 165, 233, 0.04));
+  pointer-events: none;
+}
+
+.profile-header {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 18px;
+}
+
+.profile-kicker {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(232, 240, 255, 0.96);
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.field-block {
+  margin-bottom: 12px;
+}
+
+.field-block-last {
+  margin-bottom: 18px;
 }
 
 .saved-text {

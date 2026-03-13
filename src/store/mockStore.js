@@ -35,7 +35,7 @@ const initialData = {
       facilities: ['Near MRT', 'Fully Furnished', 'Cooking Allowed'],
       distanceKm: { NUS: 3.1, NTU: 11.5, SMU: 10.1, SUTD: 18.4, OTHER: 7.8 },
       rooms: 1,
-      image: 'https://via.placeholder.com/400x220?text=Room+101',
+      image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80',
       status: 'open'
     },
     {
@@ -50,7 +50,7 @@ const initialData = {
       facilities: ['Near MRT', 'Fully Furnished', 'Cooking Allowed'],
       distanceKm: { NUS: 4.2, NTU: 13, SMU: 8.5, SUTD: 16.2, OTHER: 6.6 },
       rooms: 2,
-      image: 'https://via.placeholder.com/400x220?text=Whole+Unit+102',
+      image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80',
       status: 'open'
     },
     {
@@ -65,7 +65,7 @@ const initialData = {
       facilities: ['Fully Furnished', 'Cooking Allowed'],
       distanceKm: { NUS: 5.8, NTU: 14.3, SMU: 6.3, SUTD: 14.8, OTHER: 5.1 },
       rooms: 3,
-      image: 'https://via.placeholder.com/400x220?text=Whole+Unit+103',
+      image: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80',
       status: 'open'
     },
     {
@@ -80,7 +80,7 @@ const initialData = {
       facilities: ['Near MRT', 'Fully Furnished'],
       distanceKm: { NUS: 12.2, NTU: 22.5, SMU: 5.5, SUTD: 3.6, OTHER: 7 },
       rooms: 1,
-      image: 'https://via.placeholder.com/400x220?text=Studio+104',
+      image: 'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80',
       status: 'open'
     }
   ],
@@ -128,12 +128,32 @@ const initialData = {
   invitations: []
 }
 
+function mergeListings(savedListings = []) {
+  const savedById = new Map(savedListings.map((listing) => [listing.id, listing]))
+
+  return initialData.listings.map((listing) => {
+    const savedListing = savedById.get(listing.id)
+    if (!savedListing) return listing
+
+    return {
+      ...listing,
+      ...savedListing,
+      image: listing.image
+    }
+  })
+}
+
 function loadState() {
   const raw = localStorage.getItem(STORAGE_KEY)
   if (!raw) return initialData
 
   try {
-    return JSON.parse(raw)
+    const parsed = JSON.parse(raw)
+    return {
+      ...initialData,
+      ...parsed,
+      listings: mergeListings(parsed.listings)
+    }
   } catch {
     return initialData
   }

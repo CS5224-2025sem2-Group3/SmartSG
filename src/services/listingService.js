@@ -30,7 +30,7 @@ export function searchListings(filters) {
     .filter((listing) => !facilities.length || facilities.every((f) => listing.facilities.includes(f)))
     .map((listing) => {
       let budgetFit = false
-      let recommendedRoommates = 0
+      let recommendedHousemates = 0
       let minPeopleNeeded = 1
 
       if (listing.type === 'room') {
@@ -40,7 +40,7 @@ export function searchListings(filters) {
           const perPerson = listing.totalRent / people
           if (perPerson <= Number(budgetMax || 999999)) {
             minPeopleNeeded = people
-            recommendedRoommates = people - 1
+            recommendedHousemates = people - 1
             budgetFit = true
             break
           }
@@ -51,7 +51,7 @@ export function searchListings(filters) {
         ...listing,
         budgetFit,
         minPeopleNeeded,
-        recommendedRoommates
+        recommendedHousemates
       }
     })
 }

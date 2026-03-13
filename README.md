@@ -2,5 +2,5 @@
 Frontend MVP built with Vue 3 + Vite
 
 ## Setup
-npm install
-npm run dev
+npm install  
+npm run dev  
