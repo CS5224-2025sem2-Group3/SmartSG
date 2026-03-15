@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: smartsg-backend
+  datasource:
+    url: jdbc:mysql://localhost:3307/smartsg?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: a
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  
