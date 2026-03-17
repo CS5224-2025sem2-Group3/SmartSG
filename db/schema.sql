@@ -1,5 +1,4 @@
--- TODO: Check if user profile attributes ok
--- TODO: Check if listing need to put school distance, POI number etc
+-- TODO: Check if listing need to put school distance, POI number etc + distance to uni in JSON
 
 CREATE TABLE "User" (
     user_id SERIAL PRIMARY KEY,
@@ -34,6 +33,7 @@ CREATE TABLE UserProfile (
     cleanliness cleanliness_enum, -- low, medium, high
     smoking BOOLEAN, --true or false
     gender gender_enum, -- male, female
+    max_budget INT,
 
     CONSTRAINT fk_userprofile_user
         FOREIGN KEY (user_id)
@@ -44,11 +44,17 @@ CREATE TABLE UserProfile (
 CREATE TABLE Listing (
     listing_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    address TEXT,
-    rent NUMERIC(10,2),
-    lease INT, -- lease duration in months
+    address TEXT NOT NULL,
+    rent INT NOT NULL,
+    lease INT NOT NULL, -- lease duration in months
     flat_type VARCHAR(50),
-    available_from DATE
+    available_from DATE NOT NULL,
+    fully_furnished BOOLEAN,
+    cooking_allowed BOOLEAN,
+    uni_distances JSONB,
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    image_url TEXT
 );
 
 CREATE TABLE Favorites (
