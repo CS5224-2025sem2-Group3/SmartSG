@@ -10,4 +10,5 @@ public class ProfileResponse {
     private String sleepHabit;            // 转换后：Early Bird / Regular / Night Owl
     private String smoking;                // "Yes Smoking" / "No Smoking"
     private String cleanliness;            // "Low" / "Average" / "High"
+    private String gender;                 // 性别
 }
