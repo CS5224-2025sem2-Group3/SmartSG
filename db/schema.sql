@@ -55,8 +55,8 @@ CREATE TABLE Listing (
     latitude DOUBLE PRECISION,
     longitude DOUBLE PRECISION,
     image_url TEXT,
-    total_tenants INT NOT NULL,
-    rent_per_tenant DECIMAL(10,2) NOT NULL
+    total_tenants INT,
+    rent_per_tenant DECIMAL(10,2)
 );
 
 CREATE TABLE Favorites (
