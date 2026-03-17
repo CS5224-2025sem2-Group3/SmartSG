@@ -13,4 +13,5 @@ public class UserProfile {
     private Cleanliness cleanliness;
     private Boolean smoking;
     private Gender gender;
+    private Integer maxBudget;
 }
