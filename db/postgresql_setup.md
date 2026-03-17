@@ -107,16 +107,10 @@ Connect to the project database:
 Execute the schema file to create all tables.
 
 ```bash
-psql -U postgres -d smartsg -f schema.sql
+\i schema.sql
 ```
 
 # 5. Verify Tables
-
-Enter PostgreSQL shell again:
-
-```bash
-psql -d smartsg
-```
 
 List tables:
 
@@ -144,11 +138,11 @@ email         | varchar
 
 # 6. Insert Mock Data
 
-Example test insert:
-
 ```sql
-INSERT INTO "User"(name, email, password_hash, school)
-VALUES ('Alice', 'alice@email.com', 'hashed_password', 'NUS');
+\i insert_listings.sql
+```
+```sql
+\i insert_users.sql
 ```
 
 Check data:
