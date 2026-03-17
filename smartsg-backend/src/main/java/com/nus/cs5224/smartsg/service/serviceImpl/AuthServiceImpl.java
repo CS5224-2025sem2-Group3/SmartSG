@@ -21,12 +21,6 @@ public class AuthServiceImpl implements AuthService {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    /**
-     * 用户登录
-     * @param request 登录请求（邮箱、密码）
-     * @return 用户信息（不含密码）
-     * @throws ResponseStatusException 如果邮箱不存在或密码错误
-     */
     @Override
     public UserResponse login(LoginRequest request) {
         User user = authMapper.findByEmail(request.getEmail());
@@ -39,12 +33,6 @@ public class AuthServiceImpl implements AuthService {
         return new UserResponse(user.getUserId(), user.getName(), user.getEmail());
     }
 
-    /**
-     * 用户注册
-     * @param request 注册请求（姓名、邮箱、密码）
-     * @return 注册成功的用户信息
-     * @throws ResponseStatusException 如果邮箱已存在
-     */
     @Override
     @Transactional
     public UserResponse register(RegisterRequest request) {

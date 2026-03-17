@@ -17,7 +17,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Autowired
     private FavoriteMapper favoriteMapper;
 
-    // 获取用户的收藏列表
+    @Override
     public List<FavoriteResponse> getFavorites(Long userId) {
         List<Long> listingIds = favoriteMapper.findListingIdsByUserId(userId);
         return listingIds.stream()
@@ -25,8 +25,8 @@ public class FavoriteServiceImpl implements FavoriteService {
                 .collect(Collectors.toList());
     }
 
-    // 添加收藏
     @Transactional
+    @Override
     public void addFavorite(Long userId, Long listingId) {
         // 检查是否已存在
         if (favoriteMapper.exists(userId, listingId) > 0) {
@@ -39,8 +39,8 @@ public class FavoriteServiceImpl implements FavoriteService {
         favoriteMapper.insert(fav);
     }
 
-    // 删除收藏
     @Transactional
+    @Override
     public void removeFavorite(Long userId, Long listingId) {
         int deleted = favoriteMapper.delete(userId, listingId);
         // 即使删除0条，也返回成功，无需处理
