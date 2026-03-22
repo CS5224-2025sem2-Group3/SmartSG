@@ -129,7 +129,7 @@
             </div>
 
             <div class="actions">
-              <button class="btn btn-secondary" @click="toggleFav(listing.id)">
+              <button class="btn btn-secondary" :disabled="favoriteLoadingId === listing.id" @click="toggleFav(listing.id)">
                 {{ isFavorite(listing.id) ? 'Remove Favorite' : 'Favorite' }}
               </button>
 
@@ -148,7 +148,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { searchListings } from '../services/listingService'
 import { UNIVERSITIES } from '../constants/universities'
-import { toggleFavorite, isFavorite } from '../services/favoriteService'
+import { loadFavorites, toggleFavorite, isFavorite } from '../services/favoriteService'
 
 const universities = UNIVERSITIES
 
@@ -164,6 +164,7 @@ const filters = reactive({
 const results = ref([])
 const loading = ref(false)
 const error = ref('')
+const favoriteLoadingId = ref(null)
 
 async function runSearch() {
   loading.value = true
@@ -189,8 +190,16 @@ async function resetForm() {
   await runSearch()
 }
 
-function toggleFav(id) {
-  toggleFavorite(id)
+async function toggleFav(id) {
+  favoriteLoadingId.value = id
+
+  try {
+    await toggleFavorite(id)
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    favoriteLoadingId.value = null
+  }
 }
 
 onMounted(async () => {
@@ -198,6 +207,7 @@ onMounted(async () => {
   error.value = ''
 
   try {
+    await loadFavorites()
     if (universities.length && !universities.some((u) => u.value === filters.university)) {
       filters.university = universities[0].value
     }

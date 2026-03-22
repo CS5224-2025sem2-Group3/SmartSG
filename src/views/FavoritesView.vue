@@ -3,7 +3,15 @@
     <h2 class="section-title">My Favorites</h2>
     <p class="muted">Shortlisted homes and shared-living options you want to revisit.</p>
 
-    <div v-if="favoriteListings.length === 0" class="card">
+    <div v-if="loading" class="card">
+      Loading favorites...
+    </div>
+
+    <div v-else-if="error" class="card error-card">
+      {{ error }}
+    </div>
+
+    <div v-else-if="favoriteListings.length === 0" class="card">
       You have no favorite listings yet.
     </div>
 
@@ -33,10 +41,12 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { getCurrentUserFavorites, toggleFavorite } from '../services/favoriteService'
+import { getCurrentUserFavorites, loadFavorites, removeFavorite } from '../services/favoriteService'
 import { getAllListings } from '../services/listingService'
 
 const favoriteListings = ref([])
+const loading = ref(true)
+const error = ref('')
 
 function refreshFavorites(listings) {
   const favorites = getCurrentUserFavorites()
@@ -44,17 +54,32 @@ function refreshFavorites(listings) {
 }
 
 onMounted(async () => {
-  const listings = await getAllListings()
-  refreshFavorites(listings)
+  try {
+    await loadFavorites()
+    const listings = await getAllListings()
+    refreshFavorites(listings)
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    loading.value = false
+  }
 })
 
 async function handleToggleFavorite(listingId) {
-  toggleFavorite(listingId)
-  favoriteListings.value = favoriteListings.value.filter((listing) => listing.id !== Number(listingId))
+  try {
+    await removeFavorite(listingId)
+    favoriteListings.value = favoriteListings.value.filter((listing) => listing.id !== Number(listingId))
+  } catch (err) {
+    error.value = err.message
+  }
 }
 </script>
 
 <style scoped>
+.error-card {
+  color: #b91c1c;
+}
+
 .favorite-card {
   padding: 0;
   overflow: hidden;
