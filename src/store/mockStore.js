@@ -13,15 +13,6 @@ const initialData = {
     { id: 4, name: 'Cheryl', email: 'cheryl@test.com', password: '123456' },
     { id: 5, name: 'Daniel', email: 'daniel@test.com', password: '123456' }
   ],
-
-  universities: [
-    { value: 'NUS', label: 'NUS', anchor: { lat: 1.2966, lng: 103.7764 } },
-    { value: 'NTU', label: 'NTU', anchor: { lat: 1.3483, lng: 103.6831 } },
-    { value: 'SMU', label: 'SMU', anchor: { lat: 1.2963, lng: 103.8502 } },
-    { value: 'SUTD', label: 'SUTD', anchor: { lat: 1.3414, lng: 103.963 } },
-    { value: 'OTHER', label: 'Other', anchor: { lat: 1.3, lng: 103.85 } }
-  ],
-
   listings: [
     {
       id: 101,

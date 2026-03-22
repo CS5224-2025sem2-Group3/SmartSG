@@ -24,8 +24,8 @@
       </div>
 
       <div class="field-row">
-        <label class="label">Maximum Commute Time (mins)</label>
-        <input class="input" v-model.number="filters.commuteMax" type="number" placeholder="e.g. 30" />
+        <label class="label">Maximum Distance (km)</label>
+        <input class="input" v-model.number="filters.commuteMax" type="number" step="0.1" placeholder="e.g. 8.0" />
       </div>
 
       <div class="field-row">
@@ -60,8 +60,10 @@
       </div>
 
       <div style="display: flex; gap: 10px;">
-        <button class="btn btn-primary" @click="runSearch">Search</button>
-        <button class="btn btn-secondary" @click="resetForm">Reset</button>
+        <button class="btn btn-primary" :disabled="loading" @click="runSearch">
+          {{ loading ? 'Searching...' : 'Search' }}
+        </button>
+        <button class="btn btn-secondary" :disabled="loading" @click="resetForm">Reset</button>
       </div>
 
     </section>
@@ -79,13 +81,23 @@
         </p>
       </div>
 
-      <div class="list-grid">
+      <p v-if="error" class="error-text">{{ error }}</p>
+
+      <div v-if="loading" class="card empty-card">
+        Loading listings...
+      </div>
+
+      <div v-else class="list-grid">
+        <div v-if="results.length === 0" class="card empty-card">
+          No listings matched your current filters.
+        </div>
+
         <article class="card listing-card" v-for="listing in results" :key="listing.id">
           <div class="listing-media">
             <img :src="listing.image" :alt="listing.title" class="listing-image" />
             <div class="listing-overlay">
               <span>{{ listing.moveInLabel }}</span>
-              <span>{{ listing.commuteTime[filters.university] }} min to {{ filters.university }}</span>
+              <span>{{ listing.distanceKm?.[filters.university] ?? '-' }} km to {{ filters.university }}</span>
             </div>
           </div>
 
@@ -96,7 +108,7 @@
             </div>
 
             <p><strong>Total Rent:</strong> SGD {{ listing.totalRent }}</p>
-            <p><strong>Commute Time:</strong> {{ listing.commuteTime[filters.university] }} mins</p>
+            <p><strong>Distance to {{ filters.university }}:</strong> {{ listing.distanceKm?.[filters.university] ?? '-' }} km</p>
             <p><strong>Available:</strong> {{ listing.availableFrom }} / {{ listing.moveInLabel }}</p>
             <p><strong>Lease Options:</strong> {{ listing.leaseOptions.join(' / ') }} months</p>
 
@@ -133,40 +145,70 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
-import { getUniversities, searchListings } from '../services/listingService'
+import { onMounted, reactive, ref } from 'vue'
+import { searchListings } from '../services/listingService'
+import { UNIVERSITIES } from '../constants/universities'
 import { toggleFavorite, isFavorite } from '../services/favoriteService'
 
-const universities = getUniversities()
+const universities = UNIVERSITIES
 
 const filters = reactive({
   university: 'NUS',
   budgetMax: 1500,
-  commuteMax: 30,
+  commuteMax: 8,
   moveInWindow: '',
   leaseLength: '',
   facilities: []
 })
 
-const results = ref(searchListings(filters))
+const results = ref([])
+const loading = ref(false)
+const error = ref('')
 
-function runSearch() {
-  results.value = searchListings(filters)
+async function runSearch() {
+  loading.value = true
+  error.value = ''
+
+  try {
+    results.value = await searchListings(filters)
+  } catch (err) {
+    error.value = err.message
+    results.value = []
+  } finally {
+    loading.value = false
+  }
 }
 
-function resetForm() {
+async function resetForm() {
   filters.university = 'NUS'
   filters.budgetMax = 1500
-  filters.commuteMax = 30
+  filters.commuteMax = 8
   filters.moveInWindow = ''
   filters.leaseLength = ''
   filters.facilities = []
-  runSearch()
+  await runSearch()
 }
 
 function toggleFav(id) {
   toggleFavorite(id)
 }
+
+onMounted(async () => {
+  loading.value = true
+  error.value = ''
+
+  try {
+    if (universities.length && !universities.some((u) => u.value === filters.university)) {
+      filters.university = universities[0].value
+    }
+    results.value = await searchListings(filters)
+  } catch (err) {
+    error.value = err.message
+    results.value = []
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <style scoped>
@@ -238,6 +280,16 @@ function toggleFav(id) {
   margin: 0;
   color: #5b6b85;
   text-align: right;
+}
+
+.error-text {
+  color: #b91c1c;
+  margin: 0 0 16px;
+}
+
+.empty-card {
+  text-align: center;
+  color: #64748b;
 }
 
 .listing-card {

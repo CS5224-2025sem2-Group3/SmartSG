@@ -1,5 +1,9 @@
 <template>
-  <div v-if="listing">
+  <div v-if="loading" class="card">
+    Loading listing...
+  </div>
+
+  <div v-else-if="listing">
     <section class="card" style="margin-bottom: 18px;">
       <div class="hero">
         <img :src="listing.image" :alt="listing.title" class="hero-image" />
@@ -148,7 +152,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getListingById, getRecommendedGroupSize } from '../services/listingService'
 import {
@@ -164,7 +168,8 @@ import { inviteCandidateToGroup } from '../services/invitationService'
 
 const route = useRoute()
 const listingId = Number(route.params.id)
-const listing = getListingById(listingId)
+const listing = ref(null)
+const loading = ref(true)
 
 const idealProfile = reactive(getDefaultProfile())
 
@@ -172,7 +177,15 @@ const matches = ref([])
 const group = computed(() => getGroupByListingId(listingId))
 
 const recommended = computed(() => {
-  return getRecommendedGroupSize(listing, idealProfile.budgetMax)
+  return getRecommendedGroupSize(listing.value, idealProfile.budgetMax)
+})
+
+onMounted(async () => {
+  try {
+    listing.value = await getListingById(listingId)
+  } finally {
+    loading.value = false
+  }
 })
 
 function loadMatches() {

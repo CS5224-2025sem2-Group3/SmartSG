@@ -1,5 +1,5 @@
 import { store, persistStore } from '../store/mockStore'
-import { getListingById } from './listingService'
+import { getCachedListingById } from './listingService'
 
 function overlapMoveIn(a, b, maxDays = 14) {
   if (!a || !b) return true
@@ -45,7 +45,7 @@ export function getGroupsForCurrentUser() {
 export function getOrCreateGroupForListing(listingId, creatorProfile) {
   if (!store.currentUserId) return null
 
-  const listing = getListingById(listingId)
+  const listing = getCachedListingById(listingId)
   if (!listing) return null
 
   const existing = getGroupByListingId(listingId)
@@ -99,7 +99,7 @@ export function getDiscoverableHousemates() {
 }
 
 export function recommendHousemates(listingId, idealProfile) {
-  const listing = getListingById(listingId)
+  const listing = getCachedListingById(listingId)
   if (!listing || !store.currentUserId) return []
 
   const existingGroup = getGroupByListingId(listingId)
@@ -132,7 +132,7 @@ export function confirmGroupDecision(groupId) {
     group.selected = true
     group.status = 'selected'
 
-    const listing = getListingById(group.listingId)
+    const listing = getCachedListingById(group.listingId)
     if (listing) listing.status = 'selected'
 
     persistStore()
@@ -140,7 +140,7 @@ export function confirmGroupDecision(groupId) {
 }
 
 export function calculateGroupSummary(group) {
-  const listing = getListingById(group.listingId)
+  const listing = getCachedListingById(group.listingId)
   if (!listing) return null
 
   const budgets = group.members.map((m) => Number(m.budgetMax || 0))

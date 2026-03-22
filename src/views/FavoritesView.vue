@@ -23,7 +23,7 @@
 
           <div class="favorite-actions">
             <RouterLink class="btn btn-primary" :to="`/listing/${listing.id}`">View Details</RouterLink>
-            <button class="btn btn-secondary" @click="toggleFavorite(listing.id)">Remove</button>
+            <button class="btn btn-secondary" @click="handleToggleFavorite(listing.id)">Remove</button>
           </div>
         </div>
       </article>
@@ -32,15 +32,26 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { onMounted, ref } from 'vue'
 import { getCurrentUserFavorites, toggleFavorite } from '../services/favoriteService'
 import { getAllListings } from '../services/listingService'
 
-const favoriteListings = computed(() => {
+const favoriteListings = ref([])
+
+function refreshFavorites(listings) {
   const favorites = getCurrentUserFavorites()
-  const listings = getAllListings()
-  return listings.filter((listing) => favorites.includes(listing.id))
+  favoriteListings.value = listings.filter((listing) => favorites.includes(listing.id))
+}
+
+onMounted(async () => {
+  const listings = await getAllListings()
+  refreshFavorites(listings)
 })
+
+async function handleToggleFavorite(listingId) {
+  toggleFavorite(listingId)
+  favoriteListings.value = favoriteListings.value.filter((listing) => listing.id !== Number(listingId))
+}
 </script>
 
 <style scoped>
