@@ -97,7 +97,7 @@
             <img :src="listing.image" :alt="listing.title" class="listing-image" />
             <div class="listing-overlay">
               <span>{{ listing.moveInLabel }}</span>
-              <span>{{ listing.distanceKm?.[filters.university] ?? '-' }} km to {{ filters.university }}</span>
+              <span>{{ listing.distance ?? '-' }} km to {{ filters.university }}</span>
             </div>
           </div>
 
@@ -108,7 +108,7 @@
             </div>
 
             <p><strong>Total Rent:</strong> SGD {{ listing.totalRent }}</p>
-            <p><strong>Distance to {{ filters.university }}:</strong> {{ listing.distanceKm?.[filters.university] ?? '-' }} km</p>
+            <p><strong>Distance to {{ filters.university }}:</strong> {{ listing.distance ?? '-' }} km</p>
             <p><strong>Available:</strong> {{ listing.availableFrom }} / {{ listing.moveInLabel }}</p>
             <p><strong>Lease Options:</strong> {{ listing.leaseOptions.join(' / ') }} months</p>
 

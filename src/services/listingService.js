@@ -41,6 +41,18 @@ function normalizeListing(listing) {
     normalized.rooms = normalized.type === 'room' ? 1 : 1
   }
 
+  if (typeof normalized.distance === 'undefined' && typeof normalized.distanceKm !== 'undefined') {
+    normalized.distance = normalized.distanceKm
+  }
+
+  if (normalized.distance && typeof normalized.distance === 'object') {
+    normalized.distance = Object.values(normalized.distance)[0] ?? null
+  }
+
+  if (normalized.distanceKm && typeof normalized.distanceKm === 'object') {
+    normalized.distanceKm = Object.values(normalized.distanceKm)[0] ?? null
+  }
+
   return normalized
 }
 
