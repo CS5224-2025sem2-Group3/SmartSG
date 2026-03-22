@@ -95,22 +95,20 @@
         <article class="card listing-card" v-for="listing in results" :key="listing.id">
           <div class="listing-media">
             <img :src="listing.image" :alt="listing.title" class="listing-image" />
-            <div class="listing-overlay">
-              <span>{{ listing.moveInLabel }}</span>
-              <span>{{ listing.distance ?? '-' }} km to {{ filters.university }}</span>
-            </div>
           </div>
 
           <div class="listing-body">
             <div class="title-row">
               <h3>{{ listing.title }}</h3>
-              <span class="badge">{{ listing.type === 'whole' ? 'Whole Unit' : 'Room' }}</span>
             </div>
 
             <p><strong>Total Rent:</strong> SGD {{ listing.totalRent }}</p>
             <p><strong>Distance to {{ filters.university }}:</strong> {{ listing.distance ?? '-' }} km</p>
             <p><strong>Available:</strong> {{ listing.availableFrom }} / {{ listing.moveInLabel }}</p>
-            <p><strong>Lease Options:</strong> {{ listing.leaseOptions.join(' / ') }} months</p>
+            <p>
+              <strong>Lease Options:</strong>
+              {{ listing.leaseOptions.length ? `${listing.leaseOptions.join(' / ')} months` : 'Not specified' }}
+            </p>
 
             <p v-if="listing.type === 'whole'">
               <strong>Suggested Minimum Group Size:</strong>
@@ -124,7 +122,7 @@
               </span>
             </p>
 
-            <div class="facility-row">
+            <div class="facility-row" v-if="listing.facilities.length">
               <span class="mini-badge" v-for="f in listing.facilities" :key="f">{{ f }}</span>
             </div>
 
@@ -319,27 +317,6 @@ onMounted(async () => {
   min-height: 220px;
   object-fit: cover;
   background: #e5e7eb;
-}
-
-.listing-overlay {
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 16px;
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.listing-overlay span {
-  padding: 7px 11px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(10px);
-  color: #1f2937;
-  font-size: 12px;
-  font-weight: 700;
 }
 
 .listing-body {

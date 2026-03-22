@@ -1,16 +1,11 @@
 import { reactive } from 'vue'
 import { apiRequest } from '../api/apiClient'
-import { authState } from './authService'
 
 const listingState = reactive({
   listingsById: {}
 })
 
-function getAuthHeaders() {
-  return authState.token
-    ? { Authorization: `Bearer ${authState.token}` }
-    : {}
-}
+const DEFAULT_LISTING_IMAGE = '/no-image.svg'
 
 function getMoveInLabel(availableFrom) {
   if (!availableFrom) return ''
@@ -34,15 +29,20 @@ function normalizeListing(listing) {
 
   const normalized = {
     ...listing,
+    image: listing.image || listing.imageUrl || DEFAULT_LISTING_IMAGE,
+    facilities: Array.isArray(listing.facilities) ? listing.facilities : [],
+    leaseOptions: Array.isArray(listing.leaseOptions) ? listing.leaseOptions : [],
+    rooms: typeof listing.rooms === 'number' ? listing.rooms : listing.totalTenants || 1,
+    status: listing.status || 'Available',
     moveInLabel: listing.moveInLabel || getMoveInLabel(listing.availableFrom)
-  }
-
-  if (typeof normalized.rooms !== 'number') {
-    normalized.rooms = normalized.type === 'room' ? 1 : 1
   }
 
   if (typeof normalized.distance === 'undefined' && typeof normalized.distanceKm !== 'undefined') {
     normalized.distance = normalized.distanceKm
+  }
+
+  if (typeof normalized.distance === 'undefined' && typeof listing.uniDistances === 'object' && listing.uniDistances) {
+    normalized.distance = Object.values(listing.uniDistances)[0] ?? null
   }
 
   if (normalized.distance && typeof normalized.distance === 'object') {
@@ -84,9 +84,7 @@ function addClientComputedFields(listing, budgetMax) {
 }
 
 export async function getAllListings() {
-  const listings = await apiRequest('/api/listings', {
-    headers: getAuthHeaders()
-  })
+  const listings = await apiRequest('/api/listings')
 
   const normalized = listings.map(normalizeListing)
   cacheListings(normalized)
@@ -99,11 +97,11 @@ export function getCachedListingById(id) {
 
 export async function getListingById(id) {
   const cached = getCachedListingById(id)
-  if (cached) return cached
+  if (cached && cached.facilities.length && cached.image !== DEFAULT_LISTING_IMAGE) {
+    return cached
+  }
 
-  const listing = await apiRequest(`/api/listings/${Number(id)}`, {
-    headers: getAuthHeaders()
-  })
+  const listing = await apiRequest(`/api/listings/${Number(id)}`)
 
   const normalized = normalizeListing(listing)
   cacheListings([normalized])
@@ -128,13 +126,11 @@ export async function searchListings(filters) {
   if (commuteMax) params.set('distance', Number(commuteMax).toFixed(1))
 
   const query = params.toString()
-  const listings = await apiRequest(`/api/listings${query ? `?${query}` : ''}`, {
-    headers: getAuthHeaders()
-  })
+  const listings = await apiRequest(`/api/listings${query ? `?${query}` : ''}`)
 
   const normalized = listings
     .map(normalizeListing)
-    .filter((listing) => !leaseLength || listing.leaseOptions.includes(Number(leaseLength)))
+    .filter((listing) => !leaseLength || !listing.leaseOptions.length || listing.leaseOptions.includes(Number(leaseLength)))
     .filter((listing) => !facilities.length || facilities.every((f) => listing.facilities.includes(f)))
     .map((listing) => addClientComputedFields(listing, budgetMax))
 

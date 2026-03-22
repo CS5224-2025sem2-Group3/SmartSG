@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">No image available</title>
+  <desc id="desc">Placeholder illustration for listings without a photo.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#f7f4ea" />
+      <stop offset="100%" stop-color="#dfe9dd" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="28" fill="url(#bg)" />
+  <rect x="86" y="74" width="468" height="272" rx="24" fill="#ffffff" stroke="#d7e0d4" stroke-width="4" />
+  <circle cx="214" cy="166" r="30" fill="#dfe9dd" />
+  <path d="M142 286l82-86 68 62 76-92 130 116H142z" fill="#dfe9dd" />
+  <path d="M184 136h272" stroke="#b6c7b2" stroke-linecap="round" stroke-width="12" />
+  <path d="M184 176h188" stroke="#c8d5c5" stroke-linecap="round" stroke-width="12" />
+  <text x="320" y="378" fill="#56715d" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" text-anchor="middle">
+    No Photo Available
+  </text>
+</svg>

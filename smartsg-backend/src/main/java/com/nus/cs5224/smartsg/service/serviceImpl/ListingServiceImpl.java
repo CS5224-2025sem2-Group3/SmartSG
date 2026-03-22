@@ -40,7 +40,7 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public List<ListingSummaryResponse> getListings(ListingFilter filter) {
         List<Listing> listings = listingMapper.findListings(filter);
-        return listings.stream().map(this::convertToSummary).collect(Collectors.toList());
+        return listings.stream().map((listing) -> convertToSummary(listing, filter)).collect(Collectors.toList());
     }
 
     @Override
@@ -52,35 +52,26 @@ public class ListingServiceImpl implements ListingService {
         return convertToDetail(listing);
     }
 
-    private ListingSummaryResponse convertToSummary(Listing listing) {
+    private ListingSummaryResponse convertToSummary(Listing listing, ListingFilter filter) {
+        Map<String, Double> distances = parseDistances(listing.getUniDistances());
+
         return new ListingSummaryResponse(
                 listing.getListingId(),
                 listing.getTitle(),
                 listing.getFlatType(),
                 listing.getRent(),
-                listing.getAvailableFrom()
+                listing.getAvailableFrom(),
+                listing.getTotalTenants(),
+                listing.getRentPerTenant(),
+                filter.getUniversity() != null ? distances.get(filter.getUniversity()) : null,
+                listing.getImageUrl(),
+                buildFacilities(listing),
+                listing.getLease() != null ? List.of(listing.getLease()) : List.of()
         );
     }
 
     private ListingDetailResponse convertToDetail(Listing listing) {
-        Map<String, Double> distances = null;
-        if (listing.getUniDistances() != null) {
-            try {
-                distances = objectMapper.readValue(listing.getUniDistances(), new TypeReference<Map<String, Double>>() {});
-            } catch (Exception e) {
-                distances = Map.of();
-            }
-        } else {
-            distances = Map.of();
-        }
-
-        List<String> facilities = new ArrayList<>();
-        if (Boolean.TRUE.equals(listing.getFullyFurnished())) {
-            facilities.add("Fully Furnished");
-        }
-        if (Boolean.TRUE.equals(listing.getCookingAllowed())) {
-            facilities.add("Cooking Allowed");
-        }
+        Map<String, Double> distances = parseDistances(listing.getUniDistances());
 
         return new ListingDetailResponse(
                 listing.getListingId(),
@@ -94,7 +85,30 @@ public class ListingServiceImpl implements ListingService {
                 listing.getLatitude(),
                 listing.getLongitude(),
                 listing.getImageUrl(),
-                facilities
+                buildFacilities(listing)
         );
+    }
+
+    private Map<String, Double> parseDistances(String rawDistances) {
+        if (rawDistances != null) {
+            try {
+                return objectMapper.readValue(rawDistances, new TypeReference<Map<String, Double>>() {});
+            } catch (Exception e) {
+                return Map.of();
+            }
+        }
+
+        return Map.of();
+    }
+
+    private List<String> buildFacilities(Listing listing) {
+        List<String> facilities = new ArrayList<>();
+        if (Boolean.TRUE.equals(listing.getFullyFurnished())) {
+            facilities.add("Fully Furnished");
+        }
+        if (Boolean.TRUE.equals(listing.getCookingAllowed())) {
+            facilities.add("Cooking Allowed");
+        }
+        return facilities;
     }
 }

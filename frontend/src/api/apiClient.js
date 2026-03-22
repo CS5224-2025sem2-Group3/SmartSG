@@ -8,11 +8,11 @@ function buildUrl(url) {
 export async function apiRequest(url, options = {}) {
   const res = await fetch(buildUrl(url), {
     credentials: 'include',
+    ...options,
     headers: {
       'Content-Type': 'application/json',
       ...(options.headers || {})
-    },
-    ...options
+    }
   })
 
   if (!res.ok) {

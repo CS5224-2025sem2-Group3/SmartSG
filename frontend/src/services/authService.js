@@ -8,7 +8,6 @@ function loadStoredSession() {
   const raw = localStorage.getItem(AUTH_STORAGE_KEY)
   if (!raw) {
     return {
-      token: '',
       user: null
     }
   }
@@ -16,12 +15,10 @@ function loadStoredSession() {
   try {
     const parsed = JSON.parse(raw)
     return {
-      token: parsed.token || '',
       user: parsed.user || null
     }
   } catch {
     return {
-      token: '',
       user: null
     }
   }
@@ -30,7 +27,6 @@ function loadStoredSession() {
 const storedSession = loadStoredSession()
 
 export const authState = reactive({
-  token: storedSession.token,
   user: storedSession.user,
   initialized: false
 })
@@ -39,14 +35,12 @@ function persistAuthSession() {
   localStorage.setItem(
     AUTH_STORAGE_KEY,
     JSON.stringify({
-      token: authState.token,
       user: authState.user
     })
   )
 }
 
 function clearAuthSession() {
-  authState.token = ''
   authState.user = null
   localStorage.removeItem(AUTH_STORAGE_KEY)
 }
@@ -57,9 +51,8 @@ function syncMockStoreUser(user) {
   persistStore()
 }
 
-function setAuthenticatedUser(user, token = '') {
+function setAuthenticatedUser(user) {
   authState.user = user
-  authState.token = token || authState.token || ''
   persistAuthSession()
   syncMockStoreUser(user)
   return { ok: true, user }
@@ -74,7 +67,7 @@ export async function loginUser({ email, password }) {
     })
   })
 
-  return setAuthenticatedUser(response.user, response.token)
+  return setAuthenticatedUser(response)
 }
 
 export async function registerUser({ name, email, password }) {
@@ -87,16 +80,13 @@ export async function registerUser({ name, email, password }) {
     })
   })
 
-  return setAuthenticatedUser(response.user, response.token)
+  return { ok: true, user: response }
 }
 
 export async function logoutUser() {
   try {
     await apiRequest('/api/auth/logout', {
-      method: 'POST',
-      headers: authState.token
-        ? { Authorization: `Bearer ${authState.token}` }
-        : {}
+      method: 'POST'
     })
   } finally {
     clearAuthSession()
@@ -105,11 +95,7 @@ export async function logoutUser() {
 }
 
 export async function fetchCurrentUser() {
-  const user = await apiRequest('/api/auth/me', {
-    headers: authState.token
-      ? { Authorization: `Bearer ${authState.token}` }
-      : {}
-  })
+  const user = await apiRequest('/api/auth/me')
 
   setAuthenticatedUser(user)
   return user
@@ -118,7 +104,7 @@ export async function fetchCurrentUser() {
 export async function initializeAuth() {
   if (authState.initialized) return authState.user
 
-  if (!authState.token && !authState.user) {
+  if (!authState.user) {
     authState.initialized = true
     syncMockStoreUser(null)
     return null

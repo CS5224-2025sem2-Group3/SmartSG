@@ -23,7 +23,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserResponse login(LoginRequest request) {
-        User user = authMapper.findByEmail(request.getEmail());
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+        User user = authMapper.findByEmail(normalizedEmail);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
@@ -36,8 +37,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public UserResponse register(RegisterRequest request) {
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+
         // 检查邮箱是否已存在
-        User existingUser = authMapper.findByEmail(request.getEmail());
+        User existingUser = authMapper.findByEmail(normalizedEmail);
         if (existingUser != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
@@ -45,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
         // 创建新用户对象
         User newUser = new User();
         newUser.setName(request.getName());
-        newUser.setEmail(request.getEmail());
+        newUser.setEmail(normalizedEmail);
         newUser.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
         // 插入数据库

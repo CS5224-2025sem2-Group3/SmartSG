@@ -20,14 +20,16 @@ public interface ProfileMapper {
     UserProfile findByUserId(@Param("userId") Long userId);
 
     @Insert("INSERT INTO UserProfile (user_id, move_in_window, lease_preference, sleep_schedule, cleanliness, smoking, gender, max_budget) " +
-            "VALUES (#{userId}, #{moveInWindow}, #{leasePreference}, #{sleepSchedule, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, " +
-            "#{cleanliness, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, #{smoking}, #{gender, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, #{maxBudget})")
+            "VALUES (#{userId}, #{moveInWindow}, #{leasePreference}, " +
+            "CAST(#{sleepSchedule, typeHandler=org.apache.ibatis.type.EnumTypeHandler} AS sleep_schedule_enum), " +
+            "CAST(#{cleanliness, typeHandler=org.apache.ibatis.type.EnumTypeHandler} AS cleanliness_enum), " +
+            "#{smoking}, CAST(#{gender, typeHandler=org.apache.ibatis.type.EnumTypeHandler} AS gender_enum), #{maxBudget})")
     int insert(UserProfile profile);
 
     @Update("UPDATE UserProfile SET move_in_window = #{moveInWindow}, lease_preference = #{leasePreference}, " +
-            "sleep_schedule = #{sleepSchedule, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, " +
-            "cleanliness = #{cleanliness, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, " +
-            "smoking = #{smoking}, gender = #{gender, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, " +
+            "sleep_schedule = CAST(#{sleepSchedule, typeHandler=org.apache.ibatis.type.EnumTypeHandler} AS sleep_schedule_enum), " +
+            "cleanliness = CAST(#{cleanliness, typeHandler=org.apache.ibatis.type.EnumTypeHandler} AS cleanliness_enum), " +
+            "smoking = #{smoking}, gender = CAST(#{gender, typeHandler=org.apache.ibatis.type.EnumTypeHandler} AS gender_enum), " +
             "max_budget = #{maxBudget} WHERE user_id = #{userId}")
     int update(UserProfile profile);
 }
