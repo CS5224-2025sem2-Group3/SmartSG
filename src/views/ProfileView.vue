@@ -15,7 +15,7 @@
       </div>
 
       <div class="field-block">
-        <label class="label">Move-in Window</label>
+        <label class="label">Move-in Date</label>
         <input class="input" type="date" v-model="profile.moveInWindow" />
       </div>
 
@@ -31,32 +31,39 @@
       <div class="field-block">
         <label class="label">Sleep Habit</label>
         <select v-model="profile.sleepHabit">
-          <option value="Early Sleeper">Early Sleeper</option>
+          <option value="EarlyBird">EarlyBird</option>
           <option value="Regular">Regular</option>
-          <option value="Night Owl">Night Owl</option>
+          <option value="NightOwl">NightOwl</option>
         </select>
       </div>
 
       <div class="field-block">
         <label class="label">Smoking Preference</label>
         <select v-model="profile.smoking">
-          <option value="No Smoking">No Smoking</option>
-          <option value="Okay with Smoking">Okay with Smoking</option>
-          <option value="I Smoke">I Smoke</option>
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+      </div>
+
+      <div class="field-block">
+        <label class="label">Cleanliness Habit</label>
+        <select v-model="profile.cleanliness">
+          <option value="Low">Low</option>
+          <option value="Average">Average</option>
+          <option value="High">High</option>
         </select>
       </div>
 
       <div class="field-block field-block-last">
-        <label class="label">Cleanliness Habit</label>
-        <select v-model="profile.cleanliness">
-          <option value="Very Clean">Very Clean</option>
-          <option value="Average">Average</option>
-          <option value="Casual">Casual</option>
+        <label class="label">Gender</label>
+        <select v-model="profile.gender">
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
         </select>
       </div>
 
-      <button class="btn btn-primary" @click="saveProfile">
-        Save Profile
+      <button class="btn btn-primary" :disabled="loading" @click="saveProfile">
+        {{ loading ? 'Saving...' : 'Save Profile' }}
       </button>
 
       <p v-if="savedMessage" class="saved-text">{{ savedMessage }}</p>
@@ -65,22 +72,42 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
-import { getCurrentUserProfile, saveUserProfile, getDefaultProfile } from '../services/profileService'
+import { onMounted, reactive, ref } from 'vue'
+import {
+  getCurrentUserProfile,
+  loadCurrentUserProfile,
+  saveUserProfile,
+  getDefaultProfile
+} from '../services/profileService'
 
 const existingProfile = getCurrentUserProfile()
 
 const profile = reactive(existingProfile || getDefaultProfile())
 
 const savedMessage = ref('')
+const loading = ref(false)
 
-function saveProfile() {
-  saveUserProfile({ ...profile })
-  savedMessage.value = 'Profile saved successfully.'
+onMounted(async () => {
+  try {
+    const loadedProfile = await loadCurrentUserProfile()
+    Object.assign(profile, loadedProfile || getDefaultProfile())
+  } catch {}
+})
 
-  setTimeout(() => {
-    savedMessage.value = ''
-  }, 2000)
+async function saveProfile() {
+  loading.value = true
+
+  try {
+    const savedProfile = await saveUserProfile({ ...profile })
+    Object.assign(profile, savedProfile)
+    savedMessage.value = 'Profile saved successfully.'
+
+    setTimeout(() => {
+      savedMessage.value = ''
+    }, 2000)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 

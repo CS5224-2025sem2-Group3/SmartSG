@@ -84,26 +84,29 @@ const initialData = {
       leasePreference: '12',
       sleepHabit: 'Regular',
       studyPreference: 'Quiet',
-      smoking: 'No Smoking',
-      cleanliness: 'Average'
+      smoking: 'No',
+      cleanliness: 'Average',
+      gender: 'Female'
     },
     3: {
       budgetMax: 1400,
       moveInWindow: 'Mid August',
       leasePreference: '6-12',
-      sleepHabit: 'Night Owl',
+      sleepHabit: 'NightOwl',
       studyPreference: 'Okay with Normal Activity',
-      smoking: 'Okay with Smoking',
-      cleanliness: 'Casual'
+      smoking: 'Yes',
+      cleanliness: 'Low',
+      gender: 'Male'
     },
     4: {
       budgetMax: 1800,
       moveInWindow: 'Early August',
       leasePreference: '12',
-      sleepHabit: 'Early Sleeper',
+      sleepHabit: 'EarlyBird',
       studyPreference: 'Quiet',
-      smoking: 'No Smoking',
-      cleanliness: 'Very Clean'
+      smoking: 'No',
+      cleanliness: 'High',
+      gender: 'Female'
     },
     5: {
       budgetMax: 1300,
@@ -111,8 +114,9 @@ const initialData = {
       leasePreference: '6',
       sleepHabit: 'Regular',
       studyPreference: 'Okay with Normal Activity',
-      smoking: 'I Smoke',
-      cleanliness: 'Average'
+      smoking: 'Yes',
+      cleanliness: 'Average',
+      gender: 'Male'
     }
   },
   groups: [],

@@ -76,27 +76,26 @@
         <div class="form-block">
           <label class="label">Preferred Sleep Habit</label>
           <select v-model="idealProfile.sleepHabit">
-            <option value="Early Sleeper">Early Sleeper</option>
+            <option value="EarlyBird">EarlyBird</option>
             <option value="Regular">Regular</option>
-            <option value="Night Owl">Night Owl</option>
+            <option value="NightOwl">NightOwl</option>
           </select>
         </div>
 
         <div class="form-block">
           <label class="label">Smoking Tolerance</label>
           <select v-model="idealProfile.smoking">
-            <option value="No Smoking">No Smoking</option>
-            <option value="Okay with Smoking">Okay with Smoking</option>
-            <option value="I Smoke">I Smoke</option>
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
           </select>
         </div>
 
         <div class="form-block form-block-last">
           <label class="label">Preferred Cleanliness Habit</label>
           <select v-model="idealProfile.cleanliness">
-            <option value="Very Clean">Very Clean</option>
+            <option value="Low">Low</option>
             <option value="Average">Average</option>
-            <option value="Casual">Casual</option>
+            <option value="High">High</option>
           </select>
         </div>
 
