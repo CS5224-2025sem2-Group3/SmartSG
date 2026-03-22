@@ -26,7 +26,7 @@ export function searchListings(filters) {
     .filter((listing) => listing.distanceKm[university] <= 8)
     .filter((listing) => listing.commuteTime[university] <= Number(commuteMax || 999))
     .filter((listing) => !leaseLength || listing.leaseOptions.includes(Number(leaseLength)))
-    .filter((listing) => !moveInWindow || listing.moveInLabel === moveInWindow)
+    .filter((listing) => !moveInWindow || listing.availableFrom >= moveInWindow)
     .filter((listing) => !facilities.length || facilities.every((f) => listing.facilities.includes(f)))
     .map((listing) => {
       let budgetFit = false

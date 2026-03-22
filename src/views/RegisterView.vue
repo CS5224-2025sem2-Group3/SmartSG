@@ -21,7 +21,9 @@
 
       <p v-if="error" class="error-text">{{ error }}</p>
 
-      <button class="btn btn-primary auth-btn" @click="handleRegister">Register</button>
+      <button class="btn btn-primary auth-btn" :disabled="loading" @click="handleRegister">
+        {{ loading ? 'Creating account...' : 'Register' }}
+      </button>
 
       <p class="switch-text">
         Already have an account?
@@ -45,8 +47,9 @@ const form = reactive({
 })
 
 const error = ref('')
+const loading = ref(false)
 
-function handleRegister() {
+async function handleRegister() {
   error.value = ''
 
   if (!form.name || !form.email || !form.password) {
@@ -59,14 +62,16 @@ function handleRegister() {
     return
   }
 
-  const result = registerUser(form)
+  loading.value = true
 
-  if (!result.ok) {
-    error.value = result.message
-    return
+  try {
+    await registerUser(form)
+    router.push('/search')
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    loading.value = false
   }
-
-  router.push('/search')
 }
 </script>
 

@@ -2,7 +2,7 @@
   <div class="auth-wrap">
     <section class="card auth-card">
       <h2 class="section-title">Login</h2>
-      <p class="muted">Use a demo account or your registered account.</p>
+      <p class="muted">Use your registered account.</p>
 
       <div style="margin-bottom: 14px;">
         <label class="label">Email</label>
@@ -16,14 +16,9 @@
 
       <p v-if="error" class="error-text">{{ error }}</p>
 
-      <button class="btn btn-primary auth-btn" @click="handleLogin">Login</button>
-
-      <div class="helper-block">
-        <p><strong>Demo accounts:</strong></p>
-        <p>demo@test.com / 123456</p>
-        <p>alice@test.com / 123456</p>
-        <p>ben@test.com / 123456</p>
-      </div>
+      <button class="btn btn-primary auth-btn" :disabled="loading" @click="handleLogin">
+        {{ loading ? 'Logging in...' : 'Login' }}
+      </button>
 
       <p class="switch-text">
         No account yet?
@@ -46,8 +41,9 @@ const form = reactive({
 })
 
 const error = ref('')
+const loading = ref(false)
 
-function handleLogin() {
+async function handleLogin() {
   error.value = ''
 
   if (!form.email || !form.password) {
@@ -55,14 +51,16 @@ function handleLogin() {
     return
   }
 
-  const result = loginUser(form)
+  loading.value = true
 
-  if (!result.ok) {
-    error.value = result.message
-    return
+  try {
+    await loginUser(form)
+    router.push('/search')
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    loading.value = false
   }
-
-  router.push('/search')
 }
 </script>
 

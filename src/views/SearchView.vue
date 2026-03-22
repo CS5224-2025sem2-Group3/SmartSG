@@ -29,13 +29,8 @@
       </div>
 
       <div class="field-row">
-        <label class="label">Move-in Window</label>
-        <select v-model="filters.moveInWindow">
-          <option value="">Any</option>
-          <option value="Early August">Early August</option>
-          <option value="Mid August">Mid August</option>
-          <option value="Late August">Late August</option>
-        </select>
+        <label class="label">Move-in Date</label>
+        <input class="input" type="date" v-model="filters.moveInWindow"/>
       </div>
 
       <div class="field-row">

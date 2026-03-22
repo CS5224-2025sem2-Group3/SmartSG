@@ -15,7 +15,7 @@ export function saveUserProfile(profile) {
 export function getDefaultProfile() {
   return {
     budgetMax: 1500,
-    moveInWindow: 'Early August',
+    moveInWindow: '2026-08-10',
     leasePreference: '12',
     sleepHabit: 'Regular',
     studyPreference: 'Quiet',

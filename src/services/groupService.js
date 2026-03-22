@@ -1,9 +1,10 @@
 import { store, persistStore } from '../store/mockStore'
 import { getListingById } from './listingService'
 
-function overlapMoveIn(a, b) {
+function overlapMoveIn(a, b, maxDays = 14) {
   if (!a || !b) return true
-  return a === b
+  const diff = Math.abs(new Date(a) - new Date(b))
+  return diff <= maxDays * 24 * 60 * 60 * 1000
 }
 
 function compatibleLease(userLease, candidateLease, listingLeaseOptions = []) {

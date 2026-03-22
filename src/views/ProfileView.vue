@@ -16,11 +16,7 @@
 
       <div class="field-block">
         <label class="label">Move-in Window</label>
-        <select v-model="profile.moveInWindow">
-          <option value="Early August">Early August</option>
-          <option value="Mid August">Mid August</option>
-          <option value="Late August">Late August</option>
-        </select>
+        <input class="input" type="date" v-model="profile.moveInWindow" />
       </div>
 
       <div class="field-block">
@@ -38,14 +34,6 @@
           <option value="Early Sleeper">Early Sleeper</option>
           <option value="Regular">Regular</option>
           <option value="Night Owl">Night Owl</option>
-        </select>
-      </div>
-
-      <div class="field-block">
-        <label class="label">Study Environment Preference</label>
-        <select v-model="profile.studyPreference">
-          <option value="Quiet">Quiet</option>
-          <option value="Okay with Normal Activity">Okay with Normal Activity</option>
         </select>
       </div>
 

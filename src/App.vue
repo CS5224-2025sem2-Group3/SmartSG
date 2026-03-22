@@ -34,16 +34,15 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { store } from './store/mockStore'
-import { isLoggedIn, logoutUser } from './services/authService'
+import { authState, isLoggedIn, logoutUser } from './services/authService'
 
 const router = useRouter()
 
 const loggedIn = computed(() => isLoggedIn())
-const currentUserName = computed(() => store.currentUserName)
+const currentUserName = computed(() => authState.user?.name || '')
 
-function handleLogout() {
-  logoutUser()
+async function handleLogout() {
+  await logoutUser()
   router.push('/login')
 }
 </script>
