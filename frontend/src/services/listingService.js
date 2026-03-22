@@ -61,17 +61,13 @@ function addClientComputedFields(listing, budgetMax) {
   let recommendedHousemates = 0
   let minPeopleNeeded = 1
 
-  if (listing.type === 'room') {
-    budgetFit = listing.totalRent <= Number(budgetMax || 999999)
-  } else {
-    for (let people = 1; people <= Math.max(listing.rooms, 6); people += 1) {
-      const perPerson = listing.totalRent / people
-      if (perPerson <= Number(budgetMax || 999999)) {
-        minPeopleNeeded = people
-        recommendedHousemates = people - 1
-        budgetFit = true
-        break
-      }
+  for (let people = 1; people <= Math.max(listing.rooms, 6); people += 1) {
+    const perPerson = listing.totalRent / people
+    if (perPerson <= Number(budgetMax || 999999)) {
+      minPeopleNeeded = people
+      recommendedHousemates = people - 1
+      budgetFit = true
+      break
     }
   }
 
@@ -140,10 +136,6 @@ export async function searchListings(filters) {
 
 export function getRecommendedGroupSize(listing, budgetMax) {
   if (!listing) return { minPeopleNeeded: 1, perPerson: 0 }
-
-  if (listing.type === 'room') {
-    return { minPeopleNeeded: 1, perPerson: listing.totalRent }
-  }
 
   for (let people = 1; people <= Math.max(listing.rooms, 6); people += 1) {
     const perPerson = listing.totalRent / people

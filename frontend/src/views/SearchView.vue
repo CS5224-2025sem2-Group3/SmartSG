@@ -100,6 +100,7 @@
           <div class="listing-body">
             <div class="title-row">
               <h3>{{ listing.title }}</h3>
+              <span class="badge">{{ listing.type }}</span>
             </div>
 
             <p><strong>Total Rent:</strong> SGD {{ listing.totalRent }}</p>
@@ -110,13 +111,13 @@
               {{ listing.leaseOptions.length ? `${listing.leaseOptions.join(' / ')} months` : 'Not specified' }}
             </p>
 
-            <p v-if="listing.type === 'whole'">
+            <p>
               <strong>Suggested Minimum Group Size:</strong>
               At least {{ listing.minPeopleNeeded }} people to fit budget
             </p>
 
-            <p v-else>
-              <strong>Budget Fit:</strong>
+            <p>
+              <strong>Budget Fit: </strong>
               <span :style="{ color: listing.budgetFit ? '#15803d' : '#b91c1c' }">
                 {{ listing.budgetFit ? 'Within Budget' : 'Over Budget' }}
               </span>

@@ -10,7 +10,7 @@
         <div class="hero-content">
           <div class="hero-title-row">
             <h2 class="hero-title">{{ listing.title }}</h2>
-            <span class="badge">{{ listing.type === 'whole' ? 'Whole Unit' : 'Room' }}</span>
+            <span class="badge">{{ listing.type }}</span>
           </div>
 
           <div class="hero-stats">
@@ -31,22 +31,16 @@
     <section class="card" style="margin-bottom: 18px;">
       <h3 class="section-title">Decision Support</h3>
 
-      <div v-if="listing.type === 'whole'">
-        <p>
-          This is a whole-unit listing. In this demo, the target group size is based on the number of rooms.
-        </p>
-        <p>
-          <strong>Recommendation:</strong> At least {{ recommended.minPeopleNeeded }} people are needed.
-          Estimated rent per person: SGD {{ recommended.perPerson }}
-        </p>
-      </div>
-
-      <div v-else>
-        <p>This is a room listing. You can decide individually without housemate matching.</p>
-      </div>
+      <p>
+        This listing is designed for shared living, so group planning is based on the expected number of housemates.
+      </p>
+      <p>
+        <strong>Recommendation:</strong> At least {{ recommended.minPeopleNeeded }} people are needed.
+        Estimated rent per person: SGD {{ recommended.perPerson }}
+      </p>
     </section>
 
-    <section v-if="listing.type === 'whole'" class="grid" style="grid-template-columns: 420px 1fr;">
+    <section class="grid" style="grid-template-columns: 420px 1fr;">
       <div class="card filter-card">
         <h3 class="section-title">Fill in Your Ideal Housemate Profile</h3>
         <p class="muted filter-copy">
