@@ -54,7 +54,9 @@ CREATE TABLE Listing (
     uni_distances JSONB,
     latitude DOUBLE PRECISION,
     longitude DOUBLE PRECISION,
-    image_url TEXT
+    image_url TEXT,
+    total_tenants INT,
+    rent_per_tenant DECIMAL(10,2)
 );
 
 CREATE TABLE Favorites (
