@@ -7,4 +7,5 @@ import com.nus.cs5224.smartsg.dto.response.UserResponse;
 public interface AuthService {
     public UserResponse login(LoginRequest request);
     public UserResponse register(RegisterRequest request);
+    public UserResponse getUserById(Long userId);
 }

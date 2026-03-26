@@ -16,3 +16,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
+# jwt token expiration time(log off time)
+jwt:
+  secret: smartsg-cs5224-jwt-secret-key-2024-this-needs-to-be-at-least-256-bits-long
+  expiration: 86400000 # 24 hours in milliseconds
