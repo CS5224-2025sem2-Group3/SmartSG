@@ -3,3 +3,6 @@
 
 # vscode
 .vscode/
+
+# spring boot log
+spring-boot.log

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,10 +20,27 @@ public class GroupController {
     @Autowired
     private GroupService groupService;
 
-    /**
-     * Create a group
-     * POST /api/groups
-     */
+    // GET /api/groups/me - get all groups the current user is in
+    @GetMapping("/me")
+    public ResponseEntity<List<GroupResponse>> getMyGroups(HttpServletRequest httpRequest) {
+        Long currentUserId = (Long) httpRequest.getAttribute("currentUserId");
+        return ResponseEntity.ok(groupService.getMyGroups(currentUserId));
+    }
+
+    // GET /api/groups/by-listing/:listingId - get all groups for a listing
+    @GetMapping("/by-listing/{listingId}")
+    public ResponseEntity<List<GroupResponse>> getGroupsByListing(@PathVariable Long listingId) {
+        return ResponseEntity.ok(groupService.getGroupsByListing(listingId));
+    }
+
+    // GET /api/groups/:groupId - get group details
+    @GetMapping("/{groupId}")
+    public ResponseEntity<GroupResponse> getGroup(@PathVariable int groupId) {
+        GroupResponse group = groupService.getGroup(groupId);
+        return ResponseEntity.ok(group);
+    }
+
+    // POST /api/groups - create a group
     @PostMapping
     public ResponseEntity<GroupResponse> createGroup(@RequestBody CreateGroupRequest request,
                                                      HttpServletRequest httpRequest) {
@@ -31,20 +49,18 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.CREATED).body(group);
     }
 
-    /**
-     * Get group details
-     * GET /api/groups/{groupId}
-     */
-    @GetMapping("/{groupId}")
-    public ResponseEntity<GroupResponse> getGroup(@PathVariable int groupId) {
-        GroupResponse group = groupService.getGroup(groupId);
-        return ResponseEntity.ok(group);
+    // DELETE /api/groups/:groupId - delete a group (leader only)
+    @DeleteMapping("/{groupId}")
+    public ResponseEntity<Map<String, Boolean>> deleteGroup(@PathVariable int groupId,
+                                                            HttpServletRequest httpRequest) {
+        Long currentUserId = (Long) httpRequest.getAttribute("currentUserId");
+        groupService.deleteGroup(groupId, currentUserId);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("success", true);
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * Join a group
-     * POST /api/groups/{groupId}/join
-     */
+    // POST /api/groups/:groupId/join - join a group
     @PostMapping("/{groupId}/join")
     public ResponseEntity<Map<String, Boolean>> joinGroup(@PathVariable int groupId,
                                                           HttpServletRequest httpRequest) {
@@ -55,15 +71,23 @@ public class GroupController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Leave a group
-     * POST /api/groups/{groupId}/leave
-     */
+    // POST /api/groups/:groupId/leave - leave a group
     @PostMapping("/{groupId}/leave")
     public ResponseEntity<Map<String, Boolean>> leaveGroup(@PathVariable int groupId,
                                                            HttpServletRequest httpRequest) {
         Long currentUserId = (Long) httpRequest.getAttribute("currentUserId");
         groupService.leaveGroup(currentUserId, groupId);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("success", true);
+        return ResponseEntity.ok(response);
+    }
+
+    // POST /api/groups/:groupId/confirm - confirm group (leader sets status to closed)
+    @PostMapping("/{groupId}/confirm")
+    public ResponseEntity<Map<String, Boolean>> confirmGroup(@PathVariable int groupId,
+                                                             HttpServletRequest httpRequest) {
+        Long currentUserId = (Long) httpRequest.getAttribute("currentUserId");
+        groupService.confirmGroup(groupId, currentUserId);
         Map<String, Boolean> response = new HashMap<>();
         response.put("success", true);
         return ResponseEntity.ok(response);

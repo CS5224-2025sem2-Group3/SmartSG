@@ -17,6 +17,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true # maps password_hash → passwordHash, user_id → userId
+
 # jwt token expiration time(log off time)
 jwt:
   secret: smartsg-cs5224-jwt-secret-key-2024-this-needs-to-be-at-least-256-bits-long

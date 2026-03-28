@@ -6,7 +6,8 @@ import lombok.Data;
 public class GroupResponse {
     private int groupId;
     private int listingId;
+    private String listingTitle;
     private String status;
-    private int maxPeople;
+    private int requiredPeople;  // = maxPeople (alias per API doc)
     private int curPeople;
 }
