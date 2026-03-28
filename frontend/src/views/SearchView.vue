@@ -104,7 +104,7 @@
             </div>
 
             <p><strong>Total Rent:</strong> SGD {{ listing.totalRent }}</p>
-            <p><strong>Distance to {{ filters.university }}:</strong> {{ listing.distance ?? '-' }} km</p>
+            <p><strong>Distance to {{ appliedFilters.university }}:</strong> {{ listing.distance ?? '-' }} km</p>
             <p><strong>Available:</strong> {{ listing.availableFrom }} / {{ listing.moveInLabel }}</p>
             <p>
               <strong>Lease Options:</strong>
@@ -164,6 +164,23 @@ const results = ref([])
 const loading = ref(false)
 const error = ref('')
 const favoriteLoadingId = ref(null)
+const appliedFilters = reactive({
+  university: filters.university,
+  budgetMax: filters.budgetMax,
+  commuteMax: filters.commuteMax,
+  moveInWindow: filters.moveInWindow,
+  leaseLength: filters.leaseLength,
+  facilities: [...filters.facilities]
+})
+
+function syncAppliedFilters() {
+  appliedFilters.university = filters.university
+  appliedFilters.budgetMax = filters.budgetMax
+  appliedFilters.commuteMax = filters.commuteMax
+  appliedFilters.moveInWindow = filters.moveInWindow
+  appliedFilters.leaseLength = filters.leaseLength
+  appliedFilters.facilities = [...filters.facilities]
+}
 
 async function runSearch() {
   loading.value = true
@@ -171,6 +188,7 @@ async function runSearch() {
 
   try {
     results.value = await searchListings(filters)
+    syncAppliedFilters()
   } catch (err) {
     error.value = err.message
     results.value = []
@@ -211,6 +229,7 @@ onMounted(async () => {
       filters.university = universities[0].value
     }
     results.value = await searchListings(filters)
+    syncAppliedFilters()
   } catch (err) {
     error.value = err.message
     results.value = []
