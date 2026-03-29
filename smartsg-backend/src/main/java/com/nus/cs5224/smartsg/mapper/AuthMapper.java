@@ -15,4 +15,7 @@ public interface AuthMapper {
     @Insert("INSERT INTO \"User\" (name, email, password_hash) VALUES (#{name}, #{email}, #{passwordHash})")
     @org.apache.ibatis.annotations.Options(useGeneratedKeys = true, keyProperty = "userId", keyColumn = "user_id")
     int insertUser(User user);
+
+    @Select("SELECT user_id, name, email, password_hash FROM \"User\" WHERE user_id = #{userId}")
+    User findById(@Param("userId") Long userId);
 }

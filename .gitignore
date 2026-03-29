@@ -1,5 +1,18 @@
-.env*
+# macOS
 .DS_Store
+
+# vscode
+.vscode/
+
+# spring boot log
+spring-boot.log
+
+# env
+.env*
+
+# frontend / node
 node_modules/
 dist/
+
+# build
 build/
