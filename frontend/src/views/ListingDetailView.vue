@@ -60,10 +60,9 @@
 
         <div class="form-block">
           <label class="label">Preferred Lease Preference</label>
-          <select v-model="idealProfile.leasePreference">
-            <option value="6">6 months</option>
-            <option value="12">12 months</option>
-            <option value="6-12">Flexible (6-12)</option>
+          <select v-model.number="idealProfile.leasePreference">
+            <option :value="6">6 months</option>
+            <option :value="12">12 months</option>
           </select>
         </div>
 
@@ -94,42 +93,43 @@
         </div>
 
         <div class="action-row">
-          <button class="btn btn-primary" @click="loadMatches">
+          <button class="btn btn-primary" :disabled="matchesLoading" @click="loadMatches">
             Match Housemates
           </button>
-          <button class="btn btn-secondary" @click="createGroupOnly">
+          <button class="btn btn-secondary" :disabled="groupActionLoading" @click="createGroupOnly">
             Create Group
           </button>
         </div>
 
         <p v-if="group" class="muted" style="margin-top: 12px;">
-          This listing already has a group: #{{ group.id }} (1 listing = 1 group)
+          Current group: #{{ group.id }} · {{ group.curPeople }}/{{ group.requiredPeople }} people
         </p>
       </div>
 
       <div class="card">
         <h3 class="section-title">Recommended Housemates</h3>
 
-        <div v-if="matches.length === 0" class="muted empty-state">
+        <p v-if="matchesError" class="muted" style="color: #b91c1c;">{{ matchesError }}</p>
+
+        <div v-if="matchesLoading" class="muted empty-state">
+          Finding matches...
+        </div>
+
+        <div v-else-if="matches.length === 0" class="muted empty-state">
           Use the ideal housemate filter above to see recommended candidates.
         </div>
 
         <div v-else class="grid">
-          <article class="candidate-card" v-for="candidate in matches" :key="candidate.id">
+          <article class="candidate-card" v-for="candidate in matches" :key="candidate.userId">
             <div>
               <h4 style="margin: 0 0 8px;">{{ candidate.name }}</h4>
               <p>Budget Max: SGD {{ candidate.budgetMax }}</p>
               <p>Move-in Window: {{ candidate.moveInWindow }}</p>
-              <p>Lease Preference: {{ candidate.leasePreference }}</p>
-              <p>Sleep Habit: {{ candidate.sleepHabit }}</p>
-              <p>Study Preference: {{ candidate.studyPreference }}</p>
-              <p>Smoking: {{ candidate.smoking }}</p>
-              <p>Cleanliness: {{ candidate.cleanliness }}</p>
               <p><strong>Match Score:</strong> {{ candidate.matchScore }}</p>
             </div>
 
             <div>
-              <button class="btn btn-primary" @click="invite(candidate.userId)">
+              <button class="btn btn-primary" :disabled="inviteLoadingId === candidate.userId" @click="invite(candidate.userId)">
                 Invite to Group
               </button>
             </div>
@@ -148,13 +148,11 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getListingById, getRecommendedGroupSize } from '../services/listingService'
-import {
-  getCurrentUserProfile,
-  getDefaultProfile
-} from '../services/profileService'
+import { getDefaultProfile } from '../services/profileService'
 import {
   getOrCreateGroupForListing,
   getGroupByListingId,
+  loadGroupsByListingId,
   recommendHousemates
 } from '../services/groupService'
 import { inviteCandidateToGroup } from '../services/invitationService'
@@ -167,7 +165,11 @@ const loading = ref(true)
 const idealProfile = reactive(getDefaultProfile())
 
 const matches = ref([])
-const group = computed(() => getGroupByListingId(listingId))
+const matchesLoading = ref(false)
+const groupActionLoading = ref(false)
+const inviteLoadingId = ref(null)
+const matchesError = ref('')
+const group = ref(null)
 
 const recommended = computed(() => {
   return getRecommendedGroupSize(listing.value, idealProfile.budgetMax)
@@ -176,29 +178,57 @@ const recommended = computed(() => {
 onMounted(async () => {
   try {
     listing.value = await getListingById(listingId)
+    const groups = await loadGroupsByListingId(listingId)
+    group.value = groups[0] || null
   } finally {
     loading.value = false
   }
 })
 
-function loadMatches() {
-  matches.value = recommendHousemates(listingId, idealProfile)
+async function loadMatches() {
+  matchesLoading.value = true
+  matchesError.value = ''
+
+  try {
+    matches.value = await recommendHousemates(listingId, idealProfile)
+    group.value = getGroupByListingId(listingId)
+  } catch (err) {
+    matchesError.value = err.message
+    matches.value = []
+  } finally {
+    matchesLoading.value = false
+  }
 }
 
-function createGroupOnly() {
-  const myProfile = getCurrentUserProfile() || getDefaultProfile()
-  getOrCreateGroupForListing(listingId, myProfile)
-  alert('Group created or joined for this listing.')
+async function createGroupOnly() {
+  groupActionLoading.value = true
+
+  try {
+    group.value = await getOrCreateGroupForListing(listingId)
+    alert('Group created or joined for this listing.')
+  } catch (err) {
+    alert(err.message)
+  } finally {
+    groupActionLoading.value = false
+  }
 }
 
-function invite(candidateId) {
+async function invite(candidateId) {
   if (!group.value) {
     alert('Please create a group first.')
     return
   }
 
-  inviteCandidateToGroup(candidateId, listingId)
-  alert('Invitation sent.')
+  inviteLoadingId.value = candidateId
+
+  try {
+    await inviteCandidateToGroup(candidateId, listingId)
+    alert('Invitation sent.')
+  } catch (err) {
+    alert(err.message)
+  } finally {
+    inviteLoadingId.value = null
+  }
 }
 </script>
 
