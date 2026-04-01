@@ -21,6 +21,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    // login
     @Override
     public UserResponse login(LoginRequest request) {
         String normalizedEmail = request.getEmail().trim().toLowerCase();
@@ -34,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
         return new UserResponse(user.getUserId(), user.getName(), user.getEmail());
     }
 
+    // register new user
     @Override
     @Transactional
     public UserResponse register(RegisterRequest request) {
@@ -55,5 +57,15 @@ public class AuthServiceImpl implements AuthService {
         authMapper.insertUser(newUser);
 
         return new UserResponse(newUser.getUserId(), newUser.getName(), newUser.getEmail());
+    }
+
+    // get user by id
+    @Override
+    public UserResponse getUserById(Long userId) {
+        User user = authMapper.findById(userId);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        return new UserResponse(user.getUserId(), user.getName(), user.getEmail());
     }
 }

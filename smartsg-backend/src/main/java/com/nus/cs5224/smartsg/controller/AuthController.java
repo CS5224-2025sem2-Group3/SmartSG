@@ -2,9 +2,11 @@ package com.nus.cs5224.smartsg.controller;
 
 import com.nus.cs5224.smartsg.dto.request.LoginRequest;
 import com.nus.cs5224.smartsg.dto.request.RegisterRequest;
+import com.nus.cs5224.smartsg.dto.response.AuthResponse;
 import com.nus.cs5224.smartsg.dto.response.UserResponse;
 import com.nus.cs5224.smartsg.service.AuthService;
-import jakarta.servlet.http.HttpSession;
+import com.nus.cs5224.smartsg.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,47 +21,50 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     /**
-     * 登录：验证凭证，将用户信息存入 session
+     * Login: validate credentials and return JWT token
      */
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request, HttpSession session) {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         UserResponse user = authService.login(request);
-        session.setAttribute("currentUser", user);
-        return ResponseEntity.ok(user);
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail());
+        return ResponseEntity.ok(new AuthResponse(token, user));
     }
 
     /**
-     * 注册：创建新用户，并自动登录（存入 session）
+     * Register: create new user and return JWT token
      */
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request, HttpSession session) {
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         UserResponse user = authService.register(request);
-        session.setAttribute("currentUser", user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail());
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(token, user));
     }
 
     /**
-     * 登出：使 session 失效
+     * Logout: JWT is stateless, client just discards the token
      */
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, Boolean>> logout(HttpSession session) {
-        session.invalidate();
+    public ResponseEntity<Map<String, Boolean>> logout() {
         Map<String, Boolean> response = new HashMap<>();
         response.put("success", true);
         return ResponseEntity.ok(response);
     }
 
     /**
-     * 获取当前登录用户信息（从 session 中获取）
-     * 若未登录，返回 401
+     * Get current logged-in user info (from JWT token)
+     * Returns 401 if no valid token (handled by JwtAuthenticationFilter)
      */
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> me(HttpSession session) {
-        UserResponse currentUser = (UserResponse) session.getAttribute("currentUser");
-        if (currentUser == null) {
+    public ResponseEntity<UserResponse> me(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("currentUserId");
+        if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(currentUser);
+        UserResponse user = authService.getUserById(userId);
+        return ResponseEntity.ok(user);
     }
 }
