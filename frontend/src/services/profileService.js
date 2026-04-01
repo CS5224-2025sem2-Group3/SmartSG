@@ -1,5 +1,6 @@
 import { reactive } from 'vue'
 import { apiRequest } from '../api/apiClient'
+import { getAuthHeaders } from './authService'
 import { store, persistStore } from '../store/mockStore'
 
 const profileState = reactive({
@@ -54,7 +55,9 @@ export function getCurrentUserProfile() {
 }
 
 export async function loadCurrentUserProfile() {
-  const profile = await apiRequest('/api/profile/me')
+  const profile = await apiRequest('/api/profile/me', {
+    headers: getAuthHeaders()
+  })
 
   profileState.current = normalizeProfile(profile)
   profileState.loaded = true
@@ -67,6 +70,7 @@ export async function saveUserProfile(profile) {
 
   await apiRequest('/api/profile/me', {
     method: 'PUT',
+    headers: getAuthHeaders(),
     body: JSON.stringify(normalized)
   })
 

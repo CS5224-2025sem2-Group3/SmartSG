@@ -2,7 +2,7 @@
   <div class="auth-wrap">
     <section class="card auth-card">
       <h2 class="section-title">Register</h2>
-      <p class="muted">Create a mock account for this demo.</p>
+      <p class="muted">Create an account to start searching and saving listings.</p>
 
       <div style="margin-bottom: 14px;">
         <label class="label">Name</label>
@@ -70,9 +70,9 @@ async function handleRegister() {
 
   try {
     await registerUser(form)
-    successMessage.value = 'Account created. Please log in with your new account.'
+    successMessage.value = 'Account created. Redirecting to your search dashboard...'
     setTimeout(() => {
-      router.push('/login')
+      router.push('/search')
     }, 800)
   } catch (err) {
     error.value = err.message
