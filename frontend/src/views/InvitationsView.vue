@@ -3,20 +3,28 @@
     <h2 class="section-title">My Invitations</h2>
     <p class="muted">Only invitations for the logged-in user are shown here.</p>
 
-    <div v-if="invitations.length === 0" class="card">
+    <div v-if="loading" class="card">
+      Loading invitations...
+    </div>
+
+    <div v-else-if="error" class="card">
+      {{ error }}
+    </div>
+
+    <div v-else-if="invitations.length === 0" class="card">
       No invitations yet.
     </div>
 
     <div v-else class="grid">
       <article class="card" v-for="inv in invitations" :key="inv.id">
-        <h3 style="margin-top: 0;">Invitation for {{ inv.toUserName }}</h3>
+        <h3 style="margin-top: 0;">Invitation #{{ inv.id }}</h3>
         <p><strong>Listing:</strong> {{ inv.listingTitle }}</p>
         <p><strong>From:</strong> {{ inv.fromUserName }}</p>
         <p><strong>Status:</strong> {{ inv.status }}</p>
 
         <div v-if="inv.status === 'pending'" style="display: flex; gap: 10px; margin-top: 14px;">
-          <button class="btn btn-primary" @click="acceptInvitation(inv.id)">Accept</button>
-          <button class="btn btn-danger" @click="rejectInvitation(inv.id)">Reject</button>
+          <button class="btn btn-primary" @click="handleAccept(inv.id)">Accept</button>
+          <button class="btn btn-danger" @click="handleReject(inv.id)">Reject</button>
         </div>
       </article>
     </div>
@@ -24,12 +32,41 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import {
   getInvitationsForCurrentUser,
+  loadInvitationsForCurrentUser,
   acceptInvitation,
   rejectInvitation
 } from '../services/invitationService'
 
 const invitations = computed(() => getInvitationsForCurrentUser())
+const loading = ref(true)
+const error = ref('')
+
+onMounted(async () => {
+  try {
+    await loadInvitationsForCurrentUser()
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    loading.value = false
+  }
+})
+
+async function handleAccept(invitationId) {
+  try {
+    await acceptInvitation(invitationId)
+  } catch (err) {
+    alert(err.message)
+  }
+}
+
+async function handleReject(invitationId) {
+  try {
+    await rejectInvitation(invitationId)
+  } catch (err) {
+    alert(err.message)
+  }
+}
 </script>

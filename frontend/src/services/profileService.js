@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { apiRequest } from '../api/apiClient'
-import { authState } from './authService'
+import { getAuthHeaders } from './authService'
 import { store, persistStore } from '../store/mockStore'
 
 const profileState = reactive({
@@ -26,17 +26,17 @@ const smokingMap = {
   'I Smoke': 'Yes'
 }
 
-function getAuthHeaders() {
-  return authState.token
-    ? { Authorization: `Bearer ${authState.token}` }
-    : {}
-}
-
 function normalizeProfile(profile) {
   if (!profile) return null
 
+  const leasePreference =
+    profile.leasePreference === '' || profile.leasePreference == null
+      ? null
+      : Number(profile.leasePreference)
+
   return {
     ...profile,
+    leasePreference: Number.isNaN(leasePreference) ? null : leasePreference,
     sleepHabit: sleepHabitMap[profile.sleepHabit] || profile.sleepHabit || 'Regular',
     cleanliness: cleanlinessMap[profile.cleanliness] || profile.cleanliness || 'Average',
     smoking: smokingMap[profile.smoking] || profile.smoking || 'No',
@@ -68,13 +68,13 @@ export async function loadCurrentUserProfile() {
 export async function saveUserProfile(profile) {
   const normalized = normalizeProfile(profile)
 
-  const response = await apiRequest('/api/profile/me', {
+  await apiRequest('/api/profile/me', {
     method: 'PUT',
     headers: getAuthHeaders(),
     body: JSON.stringify(normalized)
   })
 
-  profileState.current = normalizeProfile(response.profile || normalized)
+  profileState.current = normalized
   profileState.loaded = true
   syncMockProfile(profileState.current)
   return profileState.current
@@ -84,7 +84,7 @@ export function getDefaultProfile() {
   return {
     budgetMax: 1500,
     moveInWindow: '2026-08-10',
-    leasePreference: '12',
+    leasePreference: 12,
     sleepHabit: 'Regular',
     smoking: 'No',
     cleanliness: 'Average',

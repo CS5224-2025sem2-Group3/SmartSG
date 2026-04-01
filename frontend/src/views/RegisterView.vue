@@ -2,7 +2,7 @@
   <div class="auth-wrap">
     <section class="card auth-card">
       <h2 class="section-title">Register</h2>
-      <p class="muted">Create a mock account for this demo.</p>
+      <p class="muted">Create an account to start searching and saving listings.</p>
 
       <div style="margin-bottom: 14px;">
         <label class="label">Name</label>
@@ -24,6 +24,8 @@
       <button class="btn btn-primary auth-btn" :disabled="loading" @click="handleRegister">
         {{ loading ? 'Creating account...' : 'Register' }}
       </button>
+
+      <p v-if="successMessage" class="success-text">{{ successMessage }}</p>
 
       <p class="switch-text">
         Already have an account?
@@ -47,10 +49,12 @@ const form = reactive({
 })
 
 const error = ref('')
+const successMessage = ref('')
 const loading = ref(false)
 
 async function handleRegister() {
   error.value = ''
+  successMessage.value = ''
 
   if (!form.name || !form.email || !form.password) {
     error.value = 'Please fill in all fields.'
@@ -66,7 +70,10 @@ async function handleRegister() {
 
   try {
     await registerUser(form)
-    router.push('/search')
+    successMessage.value = 'Account created. Redirecting to your search dashboard...'
+    setTimeout(() => {
+      router.push('/search')
+    }, 800)
   } catch (err) {
     error.value = err.message
   } finally {
@@ -94,6 +101,12 @@ async function handleRegister() {
 .error-text {
   color: #b91c1c;
   margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.success-text {
+  color: #15803d;
+  margin-top: 12px;
   font-size: 14px;
 }
 

@@ -21,10 +21,9 @@
 
       <div class="field-block">
         <label class="label">Lease Preference</label>
-        <select v-model="profile.leasePreference">
-          <option value="6">6 months</option>
-          <option value="12">12 months</option>
-          <option value="6-12">Flexible (6-12)</option>
+        <select v-model.number="profile.leasePreference">
+          <option :value="6">6 months</option>
+          <option :value="12">12 months</option>
         </select>
       </div>
 

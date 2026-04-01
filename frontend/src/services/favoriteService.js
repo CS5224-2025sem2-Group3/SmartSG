@@ -1,17 +1,11 @@
 import { reactive } from 'vue'
 import { apiRequest } from '../api/apiClient'
-import { authState } from './authService'
+import { getAuthHeaders } from './authService'
 
 const favoriteState = reactive({
   items: [],
   loaded: false
 })
-
-function getAuthHeaders() {
-  return authState.token
-    ? { Authorization: `Bearer ${authState.token}` }
-    : {}
-}
 
 function normalizeFavorites(payload = []) {
   return payload.map((item) => {

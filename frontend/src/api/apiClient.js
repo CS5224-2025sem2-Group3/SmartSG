@@ -1,18 +1,22 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 
+import { getStoredAuthToken } from '../services/authStorage'
+
 function buildUrl(url) {
   if (/^https?:\/\//.test(url)) return url
   return `${API_BASE_URL}${url}`
 }
 
 export async function apiRequest(url, options = {}) {
+  const token = getStoredAuthToken()
+
   const res = await fetch(buildUrl(url), {
-    credentials: 'include',
+    ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {})
-    },
-    ...options
+    }
   })
 
   if (!res.ok) {

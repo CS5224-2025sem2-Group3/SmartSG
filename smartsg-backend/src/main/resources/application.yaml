@@ -19,7 +19,7 @@ spring:
 
 mybatis:
   configuration:
-    map-underscore-to-camel-case: true # maps password_hash → passwordHash, user_id → userId
+    map-underscore-to-camel-case: true # maps password_hash -> passwordHash, user_id -> userId
 
 # jwt token expiration time(log off time)
 jwt:

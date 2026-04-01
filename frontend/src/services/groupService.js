@@ -1,223 +1,217 @@
-import { store, persistStore } from '../store/mockStore'
+import { reactive } from 'vue'
+import { apiRequest } from '../api/apiClient'
+import { getAuthHeaders } from './authService'
 import { getCachedListingById } from './listingService'
 
-function overlapMoveIn(a, b, maxDays = 14) {
-  if (!a || !b) return true
-  const diff = Math.abs(new Date(a) - new Date(b))
-  return diff <= maxDays * 24 * 60 * 60 * 1000
+const groupState = reactive({
+  items: [],
+  byListing: {},
+  loaded: false
+})
+
+const matchingSleepHabitMap = {
+  EarlyBird: 'early_bird',
+  Regular: 'normal',
+  NightOwl: 'night_owl'
 }
 
-function compatibleLease(userLease, candidateLease, listingLeaseOptions = []) {
-  const normalizedUser = String(userLease || '')
-  const normalizedCandidate = String(candidateLease || '')
-
-  const leaseOkForListing =
-    normalizedUser === '6-12'
-      ? listingLeaseOptions.length > 0
-      : listingLeaseOptions.includes(Number(normalizedUser))
-
-  if (!leaseOkForListing) return false
-  if (normalizedCandidate === '6-12') return true
-  return normalizedCandidate === normalizedUser
+const matchingCleanlinessMap = {
+  Low: 'low',
+  Average: 'medium',
+  High: 'high'
 }
 
-function habitScore(userProfile, candidate) {
-  let score = 0
-  if (userProfile.sleepHabit === candidate.sleepHabit) score += 2
-  if (userProfile.studyPreference === candidate.studyPreference) score += 2
-  if (userProfile.smoking === candidate.smoking) score += 2
-  if (userProfile.cleanliness === candidate.cleanliness) score += 2
-  return score
+const matchingSmokingMap = {
+  Yes: 'true',
+  No: 'false'
 }
 
-export function getGroupByListingId(listingId) {
-  return store.groups.find((g) => g.listingId === Number(listingId)) || null
+function normalizeGroup(group) {
+  if (!group) return null
+
+  return {
+    id: Number(group.groupId ?? group.id),
+    groupId: Number(group.groupId ?? group.id),
+    listingId: Number(group.listingId),
+    listingTitle: group.listingTitle || '',
+    status: group.status || 'recruiting',
+    requiredPeople: Number(group.requiredPeople ?? 0),
+    curPeople: Number(group.curPeople ?? 0)
+  }
+}
+
+function cacheGroups(groups = []) {
+  groups.forEach((group) => {
+    if (!group) return
+    groupState.items = [
+      ...groupState.items.filter((item) => item.id !== group.id),
+      group
+    ]
+
+    const listingGroups = groupState.byListing[group.listingId] || []
+    groupState.byListing[group.listingId] = [
+      ...listingGroups.filter((item) => item.id !== group.id),
+      group
+    ]
+  })
+}
+
+function replaceListingGroups(listingId, groups = []) {
+  const normalizedListingId = Number(listingId)
+  const groupIds = new Set(groups.map((group) => group.id))
+
+  groupState.byListing[normalizedListingId] = groups
+  groupState.items = [
+    ...groupState.items.filter(
+      (group) => group.listingId !== normalizedListingId || groupIds.has(group.id)
+    ),
+    ...groups.filter(
+      (group) => !groupState.items.some((item) => item.id === group.id)
+    )
+  ]
+}
+
+export async function loadGroupsForCurrentUser() {
+  const groups = await apiRequest('/api/groups/me', {
+    headers: getAuthHeaders()
+  })
+
+  const normalized = groups.map(normalizeGroup)
+  groupState.items = normalized
+  normalized.forEach((group) => {
+    const listingGroups = groupState.byListing[group.listingId] || []
+    groupState.byListing[group.listingId] = [
+      ...listingGroups.filter((item) => item.id !== group.id),
+      group
+    ]
+  })
+  groupState.loaded = true
+  return normalized
 }
 
 export function getGroupsForCurrentUser() {
-  if (!store.currentUserId) return []
-
-  return store.groups.filter((g) =>
-    g.members.some((m) => m.userId === store.currentUserId)
-  )
+  return groupState.items
 }
 
-export function getOrCreateGroupForListing(listingId, creatorProfile) {
-  if (!store.currentUserId) return null
+export async function loadGroupsByListingId(listingId) {
+  const groups = await apiRequest(`/api/groups/by-listing/${Number(listingId)}`, {
+    headers: getAuthHeaders()
+  })
 
-  const listing = getCachedListingById(listingId)
-  if (!listing) return null
+  const normalized = groups.map(normalizeGroup)
+  replaceListingGroups(listingId, normalized)
+  return normalized
+}
 
-  const existing = getGroupByListingId(listingId)
+export function getGroupByListingId(listingId) {
+  const listingGroups = groupState.byListing[Number(listingId)] || []
+  return listingGroups[0] || null
+}
 
-  if (existing) {
-    const alreadyInside = existing.members.some((m) => m.userId === store.currentUserId)
-    if (!alreadyInside) {
-      existing.members.push({
-        userId: store.currentUserId,
-        name: store.currentUserName,
-        ...creatorProfile
+export async function getOrCreateGroupForListing(listingId) {
+  const existingGroups = await loadGroupsByListingId(listingId)
+  if (existingGroups.length > 0) {
+    const group = existingGroups[0]
+    try {
+      await apiRequest(`/api/groups/${group.id}/join`, {
+        method: 'POST',
+        headers: getAuthHeaders()
       })
-      persistStore()
+    } catch (err) {
+      if (!/already a member/i.test(err.message)) throw err
     }
-    return existing
+
+    const refreshedGroups = await loadGroupsByListingId(listingId)
+    return refreshedGroups[0] || group
   }
 
-  const group = {
-    id: Date.now(),
-    listingId: Number(listingId),
-    listingTitle: listing.title,
-    createdByUserId: store.currentUserId,
-    requiredPeople: listing.rooms,
-    status: 'recruiting',
-    selected: false,
-    members: [
-      {
-        userId: store.currentUserId,
-        name: store.currentUserName,
-        ...creatorProfile
-      }
-    ]
-  }
-
-  store.groups.push(group)
-  persistStore()
-  return group
-}
-
-export function getDiscoverableHousemates() {
-  if (!store.currentUserId) return []
-
-  return store.users
-    .filter((user) => user.id !== store.currentUserId)
-    .filter((user) => !!store.userProfiles[user.id])
-    .map((user) => ({
-      userId: user.id,
-      name: user.name,
-      ...store.userProfiles[user.id]
-    }))
-}
-
-export function recommendHousemates(listingId, idealProfile) {
-  const listing = getCachedListingById(listingId)
-  if (!listing || !store.currentUserId) return []
-
-  const existingGroup = getGroupByListingId(listingId)
-  const existingMemberIds = existingGroup
-    ? existingGroup.members.map((m) => m.userId)
-    : [store.currentUserId]
-
-  return getDiscoverableHousemates()
-    .filter((candidate) => !existingMemberIds.includes(candidate.userId))
-    .filter((candidate) => {
-      const minRequiredBudget = listing.totalRent / Math.max(2, listing.rooms)
-      return Number(candidate.budgetMax || 0) >= minRequiredBudget
+  const createdGroup = await apiRequest('/api/groups', {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({
+      listingId: Number(listingId)
     })
-    .filter((candidate) => overlapMoveIn(idealProfile.moveInWindow, candidate.moveInWindow))
-    .filter((candidate) =>
-      compatibleLease(idealProfile.leasePreference, candidate.leasePreference, listing.leaseOptions)
-    )
-    .map((candidate) => ({
-      ...candidate,
-      matchScore: habitScore(idealProfile, candidate)
-    }))
-    .sort((a, b) => b.matchScore - a.matchScore)
+  })
+
+  const normalized = normalizeGroup(createdGroup)
+  cacheGroups([normalized])
+  return normalized
 }
 
-export function confirmGroupDecision(groupId) {
-  const group = store.groups.find((g) => g.id === groupId)
-  if (!group) return
+export async function recommendHousemates(listingId, idealProfile) {
+  const group = await getOrCreateGroupForListing(listingId)
+  if (!group) return []
 
-  if (group.members.length >= group.requiredPeople) {
-    group.selected = true
-    group.status = 'selected'
+  const params = new URLSearchParams()
+  if (idealProfile.budgetMax) params.set('budgetMax', String(idealProfile.budgetMax))
+  if (idealProfile.moveInWindow) params.set('moveInWindow', idealProfile.moveInWindow)
+  if (idealProfile.leasePreference) params.set('leasePreference', String(Number(idealProfile.leasePreference)))
+  if (idealProfile.sleepHabit) {
+    params.set('sleepHabit', matchingSleepHabitMap[idealProfile.sleepHabit] || idealProfile.sleepHabit)
+  }
+  if (idealProfile.studyPreference) params.set('studyPreference', idealProfile.studyPreference)
+  if (idealProfile.smoking) {
+    params.set('smoking', matchingSmokingMap[idealProfile.smoking] || idealProfile.smoking)
+  }
+  if (idealProfile.cleanliness) {
+    params.set('cleanliness', matchingCleanlinessMap[idealProfile.cleanliness] || idealProfile.cleanliness)
+  }
 
-    const listing = getCachedListingById(group.listingId)
-    if (listing) listing.status = 'selected'
+  const query = params.toString()
+  return await apiRequest(`/api/groups/${group.id}/recommendations${query ? `?${query}` : ''}`, {
+    headers: getAuthHeaders()
+  })
+}
 
-    persistStore()
+export async function confirmGroupDecision(groupId) {
+  await apiRequest(`/api/groups/${Number(groupId)}/confirm`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  })
+
+  const group = groupState.items.find((item) => item.id === Number(groupId))
+  if (group) {
+    group.status = 'closed'
   }
 }
 
 export function calculateGroupSummary(group) {
   const listing = getCachedListingById(group.listingId)
-  if (!listing) return null
-
-  const budgets = group.members.map((m) => Number(m.budgetMax || 0))
-  const leaseValues = group.members.map((m) => m.leasePreference).filter(Boolean)
-  const moveInValues = group.members.map((m) => m.moveInWindow).filter(Boolean)
+  if (!listing || !group.curPeople) return null
 
   return {
-    totalBudget: budgets.reduce((a, b) => a + b, 0),
-    perPerson: listing.totalRent / group.members.length,
-    leaseIntersection: leaseValues.length ? [...new Set(leaseValues)].join(', ') : '-',
-    moveInIntersection: moveInValues.length ? [...new Set(moveInValues)].join(', ') : '-'
+    perPerson: listing.totalRent / group.curPeople
   }
 }
 
-export function deleteGroup(groupId) {
-  if (!store.currentUserId) return { ok: false, message: 'Not logged in.' }
+export async function deleteGroup(groupId) {
+  await apiRequest(`/api/groups/${Number(groupId)}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  })
 
-  const groupIndex = store.groups.findIndex((g) => g.id === Number(groupId))
-  if (groupIndex === -1) {
-    return { ok: false, message: 'Group not found.' }
-  }
+  groupState.items = groupState.items.filter((group) => group.id !== Number(groupId))
+  Object.keys(groupState.byListing).forEach((listingId) => {
+    groupState.byListing[listingId] = groupState.byListing[listingId].filter(
+      (group) => group.id !== Number(groupId)
+    )
+  })
 
-  const group = store.groups[groupIndex]
-
-  if (group.createdByUserId !== store.currentUserId) {
-    return { ok: false, message: 'Only the group creator can delete this group.' }
-  }
-
-  store.groups.splice(groupIndex, 1)
-
-  store.invitations = store.invitations.filter(
-    (inv) => inv.groupId !== Number(groupId)
-  )
-
-  persistStore()
   return { ok: true }
 }
 
-export function leaveGroup(groupId) {
-  if (!store.currentUserId) return { ok: false, message: 'Not logged in.' }
+export async function leaveGroup(groupId) {
+  await apiRequest(`/api/groups/${Number(groupId)}/leave`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  })
 
-  const group = store.groups.find((g) => g.id === Number(groupId))
-  if (!group) {
-    return { ok: false, message: 'Group not found.' }
-  }
+  groupState.items = groupState.items.filter((group) => group.id !== Number(groupId))
+  Object.keys(groupState.byListing).forEach((listingId) => {
+    groupState.byListing[listingId] = groupState.byListing[listingId].filter(
+      (group) => group.id !== Number(groupId)
+    )
+  })
 
-  if (group.createdByUserId === store.currentUserId) {
-    return {
-      ok: false,
-      message: 'Group creator cannot leave directly. Please delete the group instead.'
-    }
-  }
-
-  if (group.selected) {
-    return {
-      ok: false,
-      message: 'This group has already confirmed a listing and cannot be left now.'
-    }
-  }
-
-  group.members = group.members.filter(
-    (member) => member.userId !== store.currentUserId
-  )
-
-  if (group.members.length < group.requiredPeople) {
-    group.status = 'recruiting'
-  }
-
-  store.invitations = store.invitations.filter(
-    (inv) =>
-      !(
-        inv.groupId === Number(groupId) &&
-        inv.toUserId === store.currentUserId &&
-        inv.status === 'accepted'
-      )
-  )
-
-  persistStore()
   return { ok: true }
 }

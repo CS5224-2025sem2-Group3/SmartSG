@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,4 +16,10 @@ public class ListingSummaryResponse {
     private String type;          // flat_type
     private Integer totalRent;     // rent
     private LocalDate availableFrom;
+    private Integer totalTenants;
+    private BigDecimal rentPerTenant;
+    private Double distance;
+    private String imageUrl;
+    private List<String> facilities;
+    private List<Integer> leaseOptions;
 }

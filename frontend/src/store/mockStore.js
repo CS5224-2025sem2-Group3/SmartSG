@@ -5,14 +5,6 @@ export const STORAGE_KEY = 'student-rental-mvp-store'
 const initialData = {
   currentUserId: null,
   currentUserName: '',
-
-  users: [
-    { id: 1, name: 'Demo User', email: 'demo@test.com', password: '123456' },
-    { id: 2, name: 'Alice', email: 'alice@test.com', password: '123456' },
-    { id: 3, name: 'Ben', email: 'ben@test.com', password: '123456' },
-    { id: 4, name: 'Cheryl', email: 'cheryl@test.com', password: '123456' },
-    { id: 5, name: 'Daniel', email: 'daniel@test.com', password: '123456' }
-  ],
   listings: [
     {
       id: 101,
@@ -76,7 +68,6 @@ const initialData = {
     }
   ],
 
-  favoritesByUser: {},
   userProfiles: {
     2: {
       budgetMax: 1500,
@@ -118,9 +109,7 @@ const initialData = {
       cleanliness: 'Average',
       gender: 'Male'
     }
-  },
-  groups: [],
-  invitations: []
+  }
 }
 
 function mergeListings(savedListings = []) {
@@ -158,9 +147,4 @@ export const store = reactive(loadState())
 
 export function persistStore() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(store))
-}
-
-export function getNextUserId() {
-  if (!store.users.length) return 1
-  return Math.max(...store.users.map((u) => u.id)) + 1
 }

@@ -95,36 +95,35 @@
         <article class="card listing-card" v-for="listing in results" :key="listing.id">
           <div class="listing-media">
             <img :src="listing.image" :alt="listing.title" class="listing-image" />
-            <div class="listing-overlay">
-              <span>{{ listing.moveInLabel }}</span>
-              <span>{{ listing.distance ?? '-' }} km to {{ filters.university }}</span>
-            </div>
           </div>
 
           <div class="listing-body">
             <div class="title-row">
               <h3>{{ listing.title }}</h3>
-              <span class="badge">{{ listing.type === 'whole' ? 'Whole Unit' : 'Room' }}</span>
+              <span class="badge">{{ listing.type }}</span>
             </div>
 
             <p><strong>Total Rent:</strong> SGD {{ listing.totalRent }}</p>
-            <p><strong>Distance to {{ filters.university }}:</strong> {{ listing.distance ?? '-' }} km</p>
+            <p><strong>Distance to {{ appliedFilters.university }}:</strong> {{ listing.distance ?? '-' }} km</p>
             <p><strong>Available:</strong> {{ listing.availableFrom }} / {{ listing.moveInLabel }}</p>
-            <p><strong>Lease Options:</strong> {{ listing.leaseOptions.join(' / ') }} months</p>
+            <p>
+              <strong>Lease Options:</strong>
+              {{ listing.leaseOptions.length ? `${listing.leaseOptions.join(' / ')} months` : 'Not specified' }}
+            </p>
 
-            <p v-if="listing.type === 'whole'">
+            <p>
               <strong>Suggested Minimum Group Size:</strong>
               At least {{ listing.minPeopleNeeded }} people to fit budget
             </p>
 
-            <p v-else>
-              <strong>Budget Fit:</strong>
+            <p>
+              <strong>Budget Fit: </strong>
               <span :style="{ color: listing.budgetFit ? '#15803d' : '#b91c1c' }">
                 {{ listing.budgetFit ? 'Within Budget' : 'Over Budget' }}
               </span>
             </p>
 
-            <div class="facility-row">
+            <div class="facility-row" v-if="listing.facilities.length">
               <span class="mini-badge" v-for="f in listing.facilities" :key="f">{{ f }}</span>
             </div>
 
@@ -165,6 +164,23 @@ const results = ref([])
 const loading = ref(false)
 const error = ref('')
 const favoriteLoadingId = ref(null)
+const appliedFilters = reactive({
+  university: filters.university,
+  budgetMax: filters.budgetMax,
+  commuteMax: filters.commuteMax,
+  moveInWindow: filters.moveInWindow,
+  leaseLength: filters.leaseLength,
+  facilities: [...filters.facilities]
+})
+
+function syncAppliedFilters() {
+  appliedFilters.university = filters.university
+  appliedFilters.budgetMax = filters.budgetMax
+  appliedFilters.commuteMax = filters.commuteMax
+  appliedFilters.moveInWindow = filters.moveInWindow
+  appliedFilters.leaseLength = filters.leaseLength
+  appliedFilters.facilities = [...filters.facilities]
+}
 
 async function runSearch() {
   loading.value = true
@@ -172,6 +188,7 @@ async function runSearch() {
 
   try {
     results.value = await searchListings(filters)
+    syncAppliedFilters()
   } catch (err) {
     error.value = err.message
     results.value = []
@@ -212,6 +229,7 @@ onMounted(async () => {
       filters.university = universities[0].value
     }
     results.value = await searchListings(filters)
+    syncAppliedFilters()
   } catch (err) {
     error.value = err.message
     results.value = []
@@ -319,27 +337,6 @@ onMounted(async () => {
   min-height: 220px;
   object-fit: cover;
   background: #e5e7eb;
-}
-
-.listing-overlay {
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 16px;
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.listing-overlay span {
-  padding: 7px 11px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(10px);
-  color: #1f2937;
-  font-size: 12px;
-  font-weight: 700;
 }
 
 .listing-body {

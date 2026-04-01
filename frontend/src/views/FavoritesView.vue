@@ -19,10 +19,10 @@
       <article class="card favorite-card" v-for="listing in favoriteListings" :key="listing.id">
         <img :src="listing.image" :alt="listing.title" class="favorite-image" />
 
-        <div class="favorite-body">
-          <div class="favorite-title-row">
-            <h3 class="favorite-title">{{ listing.title }}</h3>
-            <span class="badge">{{ listing.type === 'whole' ? 'Whole Unit' : 'Room' }}</span>
+          <div class="favorite-body">
+            <div class="favorite-title-row">
+              <h3 class="favorite-title">{{ listing.title }}</h3>
+            <span class="badge">{{ listing.type }}</span>
           </div>
 
           <p><strong>Rent:</strong> SGD {{ listing.totalRent }}</p>
