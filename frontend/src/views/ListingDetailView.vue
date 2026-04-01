@@ -167,7 +167,7 @@ import { getDefaultProfile } from '../services/profileService'
 import {
   getOrCreateGroupForListing,
   getGroupByListingId,
-  loadGroupsByListingId,
+  loadGroupsForCurrentUser,
   recommendHousemates
 } from '../services/groupService'
 import { inviteCandidateToGroup } from '../services/invitationService'
@@ -193,8 +193,8 @@ const recommended = computed(() => {
 onMounted(async () => {
   try {
     listing.value = await getListingById(listingId)
-    const groups = await loadGroupsByListingId(listingId)
-    group.value = groups[0] || null
+    await loadGroupsForCurrentUser()
+    group.value = getGroupByListingId(listingId)
   } finally {
     loading.value = false
   }
@@ -220,7 +220,7 @@ async function createGroupOnly() {
 
   try {
     group.value = await getOrCreateGroupForListing(listingId)
-    alert('Group created or joined for this listing.')
+    alert('Group created for this listing.')
   } catch (err) {
     alert(err.message)
   } finally {

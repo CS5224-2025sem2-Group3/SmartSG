@@ -82,12 +82,9 @@ export async function loadGroupsForCurrentUser() {
 
   const normalized = groups.map(normalizeGroup)
   groupState.items = normalized
+  groupState.byListing = {}
   normalized.forEach((group) => {
-    const listingGroups = groupState.byListing[group.listingId] || []
-    groupState.byListing[group.listingId] = [
-      ...listingGroups.filter((item) => item.id !== group.id),
-      group
-    ]
+    groupState.byListing[group.listingId] = [group]
   })
   groupState.loaded = true
   return normalized
@@ -113,20 +110,13 @@ export function getGroupByListingId(listingId) {
 }
 
 export async function getOrCreateGroupForListing(listingId) {
-  const existingGroups = await loadGroupsByListingId(listingId)
-  if (existingGroups.length > 0) {
-    const group = existingGroups[0]
-    try {
-      await apiRequest(`/api/groups/${group.id}/join`, {
-        method: 'POST',
-        headers: getAuthHeaders()
-      })
-    } catch (err) {
-      if (!/already a member/i.test(err.message)) throw err
-    }
+  if (!groupState.loaded) {
+    await loadGroupsForCurrentUser()
+  }
 
-    const refreshedGroups = await loadGroupsByListingId(listingId)
-    return refreshedGroups[0] || group
+  const existingGroup = getGroupByListingId(listingId)
+  if (existingGroup) {
+    throw new Error('You already have a group for this listing.')
   }
 
   const createdGroup = await apiRequest('/api/groups', {
@@ -143,13 +133,11 @@ export async function getOrCreateGroupForListing(listingId) {
 }
 
 export async function recommendHousemates(listingId, idealProfile) {
-  let group = getGroupByListingId(listingId)
-
-  if (!group) {
-    const existingGroups = await loadGroupsByListingId(listingId)
-    group = existingGroups[0] || null
+  if (!groupState.loaded) {
+    await loadGroupsForCurrentUser()
   }
 
+  const group = getGroupByListingId(listingId)
   if (!group) {
     throw new Error('Create a group first before matching housemates for this listing.')
   }

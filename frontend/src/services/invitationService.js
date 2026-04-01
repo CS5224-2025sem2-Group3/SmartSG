@@ -1,7 +1,7 @@
 import { reactive } from 'vue'
 import { apiRequest } from '../api/apiClient'
 import { getAuthHeaders } from './authService'
-import { getOrCreateGroupForListing } from './groupService'
+import { getGroupByListingId, loadGroupsForCurrentUser } from './groupService'
 
 const invitationState = reactive({
   items: [],
@@ -9,7 +9,16 @@ const invitationState = reactive({
 })
 
 export async function inviteCandidateToGroup(candidateUserId, listingId) {
-  const group = await getOrCreateGroupForListing(listingId)
+  let group = getGroupByListingId(listingId)
+  if (!group) {
+    await loadGroupsForCurrentUser()
+    group = getGroupByListingId(listingId)
+  }
+
+  if (!group) {
+    throw new Error('Create a group first before sending invitations.')
+  }
+
   if (!group) return
 
   await apiRequest('/api/invitations', {

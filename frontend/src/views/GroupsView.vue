@@ -46,8 +46,12 @@
           <h4>Group Summary</h4>
           <p><strong>Total Budget:</strong> SGD {{ calculateGroupSummary(group).totalBudget }}</p>
           <p><strong>Current Rent Per Person:</strong> SGD {{ calculateGroupSummary(group).perPerson.toFixed(0) }}</p>
-          <p><strong>Lease Info:</strong> {{ calculateGroupSummary(group).leaseIntersection }}</p>
-          <p><strong>Move-in Info:</strong> {{ calculateGroupSummary(group).moveInIntersection }}</p>
+          <p v-if="group.members.length > 1">
+            <strong>Lease Info:</strong> {{ calculateGroupSummary(group).leaseIntersection }}
+          </p>
+          <p v-if="group.members.length > 1">
+            <strong>Move-in Info:</strong> {{ calculateGroupSummary(group).moveInIntersection }}
+          </p>
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
