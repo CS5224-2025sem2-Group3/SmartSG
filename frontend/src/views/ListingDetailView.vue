@@ -104,6 +104,17 @@
         <p v-if="group" class="muted" style="margin-top: 12px;">
           Current group: #{{ group.id }} · {{ group.curPeople }}/{{ group.requiredPeople }} people
         </p>
+
+        <div v-if="group?.members?.length" class="member-preview">
+          <h4>Current Members</h4>
+          <ul>
+            <li v-for="member in group.members" :key="member.userId">
+              {{ member.name }}
+              <span v-if="member.role"> · {{ member.role }}</span>
+              <span v-if="member.budgetMax"> · Budget {{ member.budgetMax }}</span>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div class="card">
@@ -116,7 +127,7 @@
         </div>
 
         <div v-else-if="matches.length === 0" class="muted empty-state">
-          Use the ideal housemate filter above to see recommended candidates.
+          {{ group ? 'Use the ideal housemate filter above to see recommended candidates.' : 'Create a group first, then use the ideal housemate filter to see recommended candidates.' }}
         </div>
 
         <div v-else class="grid">
@@ -125,6 +136,10 @@
               <h4 style="margin: 0 0 8px;">{{ candidate.name }}</h4>
               <p>Budget Max: SGD {{ candidate.budgetMax }}</p>
               <p>Move-in Window: {{ candidate.moveInWindow }}</p>
+              <p v-if="candidate.leasePreference">Lease Preference: {{ candidate.leasePreference }} months</p>
+              <p v-if="candidate.sleepHabit">Sleep Habit: {{ candidate.sleepHabit }}</p>
+              <p v-if="candidate.smoking">Smoking: {{ candidate.smoking }}</p>
+              <p v-if="candidate.cleanliness">Cleanliness: {{ candidate.cleanliness }}</p>
               <p><strong>Match Score:</strong> {{ candidate.matchScore }}</p>
             </div>
 
@@ -325,6 +340,24 @@ async function invite(candidateId) {
   flex-wrap: wrap;
   position: relative;
   z-index: 1;
+}
+
+.member-preview {
+  margin-top: 16px;
+  position: relative;
+  z-index: 1;
+  padding: 14px;
+  background: rgba(248, 250, 252, 0.84);
+  border-radius: 14px;
+}
+
+.member-preview h4 {
+  margin: 0 0 10px;
+}
+
+.member-preview ul {
+  margin: 0;
+  padding-left: 18px;
 }
 
 .candidate-card {

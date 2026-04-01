@@ -36,7 +36,11 @@ function normalizeGroup(group) {
     listingTitle: group.listingTitle || '',
     status: group.status || 'recruiting',
     requiredPeople: Number(group.requiredPeople ?? 0),
-    curPeople: Number(group.curPeople ?? 0)
+    curPeople: Number(group.curPeople ?? 0),
+    leaderUserId: group.leaderUserId ?? null,
+    currentUserRole: group.currentUserRole || null,
+    currentUserIsLeader: Boolean(group.currentUserIsLeader),
+    members: Array.isArray(group.members) ? group.members : []
   }
 }
 
@@ -139,8 +143,16 @@ export async function getOrCreateGroupForListing(listingId) {
 }
 
 export async function recommendHousemates(listingId, idealProfile) {
-  const group = await getOrCreateGroupForListing(listingId)
-  if (!group) return []
+  let group = getGroupByListingId(listingId)
+
+  if (!group) {
+    const existingGroups = await loadGroupsByListingId(listingId)
+    group = existingGroups[0] || null
+  }
+
+  if (!group) {
+    throw new Error('Create a group first before matching housemates for this listing.')
+  }
 
   const params = new URLSearchParams()
   if (idealProfile.budgetMax) params.set('budgetMax', String(idealProfile.budgetMax))
@@ -179,8 +191,21 @@ export function calculateGroupSummary(group) {
   const listing = getCachedListingById(group.listingId)
   if (!listing || !group.curPeople) return null
 
+  const budgets = group.members
+    .map((member) => Number(member.budgetMax || 0))
+    .filter((value) => value > 0)
+  const leaseValues = group.members
+    .map((member) => member.leasePreference)
+    .filter((value) => value != null)
+  const moveInValues = group.members
+    .map((member) => member.moveInWindow)
+    .filter(Boolean)
+
   return {
-    perPerson: listing.totalRent / group.curPeople
+    totalBudget: budgets.reduce((sum, value) => sum + value, 0),
+    perPerson: listing.totalRent / group.curPeople,
+    leaseIntersection: leaseValues.length ? [...new Set(leaseValues)].join(', ') : '-',
+    moveInIntersection: moveInValues.length ? [...new Set(moveInValues)].join(', ') : '-'
   }
 }
 

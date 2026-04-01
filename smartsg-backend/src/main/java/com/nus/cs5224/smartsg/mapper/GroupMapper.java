@@ -68,4 +68,20 @@ public interface GroupMapper {
             @Result(property = "userId", column = "user_id")
     })
     GroupMember findMember(@Param("groupId") int groupId, @Param("userId") long userId);
+
+    @Select("SELECT gm.group_id, gm.user_id, gm.role, u.name, up.max_budget, up.move_in_window, up.lease_preference " +
+            "FROM GroupMember gm " +
+            "JOIN \"User\" u ON gm.user_id = u.user_id " +
+            "LEFT JOIN UserProfile up ON gm.user_id = up.user_id " +
+            "WHERE gm.group_id = #{groupId}")
+    @Results(id = "memberDetailResult", value = {
+            @Result(property = "groupId", column = "group_id"),
+            @Result(property = "userId", column = "user_id"),
+            @Result(property = "role", column = "role"),
+            @Result(property = "name", column = "name"),
+            @Result(property = "budgetMax", column = "max_budget"),
+            @Result(property = "moveInWindow", column = "move_in_window"),
+            @Result(property = "leasePreference", column = "lease_preference")
+    })
+    List<GroupMember> findMembersByGroupId(@Param("groupId") int groupId);
 }

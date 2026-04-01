@@ -7,6 +7,7 @@ import java.time.LocalDate;
 public class UserProfile {
     private Long userId;
     private User user;
+    private String userName;
     private LocalDate moveInWindow;
     private Integer leasePreference;
     private SleepSchedule sleepSchedule;

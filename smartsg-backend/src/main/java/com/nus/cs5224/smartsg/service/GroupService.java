@@ -9,9 +9,9 @@ public interface GroupService {
     GroupResponse createGroup(CreateGroupRequest request, Long userId);
     void joinGroup(Long userId, int groupId);
     void leaveGroup(Long userId, int groupId);
-    GroupResponse getGroup(int groupId);
+    GroupResponse getGroup(int groupId, Long currentUserId);
     List<GroupResponse> getMyGroups(Long userId);
-    List<GroupResponse> getGroupsByListing(Long listingId);
+    List<GroupResponse> getGroupsByListing(Long listingId, Long currentUserId);
     void deleteGroup(int groupId, Long userId);
     void confirmGroup(int groupId, Long userId);
 }
