@@ -39,6 +39,7 @@
           <option value="">Any</option>
           <option :value="6">6 months</option>
           <option :value="12">12 months</option>
+          <option :value="24">24 months</option>
         </select>
       </div>
 
@@ -105,22 +106,10 @@
 
             <p><strong>Total Rent:</strong> SGD {{ listing.totalRent }}</p>
             <p><strong>Distance to {{ appliedFilters.university }}:</strong> {{ listing.distance ?? '-' }} km</p>
-            <p><strong>Available:</strong> {{ listing.availableFrom }} / {{ listing.moveInLabel }}</p>
+            <p><strong>Available:</strong> {{ listing.availableFrom }}</p>
             <p>
               <strong>Lease Options:</strong>
               {{ listing.leaseOptions.length ? `${listing.leaseOptions.join(' / ')} months` : 'Not specified' }}
-            </p>
-
-            <p>
-              <strong>Suggested Minimum Group Size:</strong>
-              At least {{ listing.minPeopleNeeded }} people to fit budget
-            </p>
-
-            <p>
-              <strong>Budget Fit: </strong>
-              <span :style="{ color: listing.budgetFit ? '#15803d' : '#b91c1c' }">
-                {{ listing.budgetFit ? 'Within Budget' : 'Over Budget' }}
-              </span>
             </p>
 
             <div class="facility-row" v-if="listing.facilities.length">

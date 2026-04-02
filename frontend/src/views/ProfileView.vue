@@ -24,6 +24,7 @@
         <select v-model.number="profile.leasePreference">
           <option :value="6">6 months</option>
           <option :value="12">12 months</option>
+          <option :value="24">24 months</option>
         </select>
       </div>
 

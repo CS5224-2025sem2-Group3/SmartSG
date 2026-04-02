@@ -41,18 +41,6 @@
           </ul>
         </div>
 
-        <div v-if="calculateGroupSummary(group)" class="summary-block">
-          <h4>Group Summary</h4>
-          <p><strong>Total Budget:</strong> SGD {{ calculateGroupSummary(group).totalBudget }}</p>
-          <p><strong>Current Rent Per Person:</strong> SGD {{ calculateGroupSummary(group).perPerson.toFixed(0) }}</p>
-          <p v-if="group.members.length > 1">
-            <strong>Lease Info:</strong> {{ calculateGroupSummary(group).leaseIntersection }}
-          </p>
-          <p v-if="group.members.length > 1">
-            <strong>Move-in Info:</strong> {{ calculateGroupSummary(group).moveInIntersection }}
-          </p>
-        </div>
-
         <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
           <RouterLink class="btn btn-secondary" :to="`/listing/${group.listingId}`">
             View Listing
@@ -84,7 +72,6 @@
 import { computed, onMounted, ref } from 'vue'
 import {
   getGroupsForCurrentUser,
-  calculateGroupSummary,
   confirmGroupDecision,
   loadGroupsForCurrentUser,
   deleteGroup,
@@ -140,8 +127,7 @@ async function handleLeave(groupId) {
   gap: 16px;
 }
 
-.member-block,
-.summary-block {
+.member-block {
   margin-top: 16px;
   padding: 14px;
   background: #f9fafb;

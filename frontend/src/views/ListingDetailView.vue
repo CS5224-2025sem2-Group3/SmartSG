@@ -15,7 +15,7 @@
 
           <div class="hero-stats">
             <p><strong>Total Rent:</strong> SGD {{ listing.totalRent }}</p>
-            <p><strong>Available From:</strong> {{ listing.availableFrom }} ({{ listing.moveInLabel }})</p>
+            <p><strong>Available From:</strong> {{ listing.availableFrom }}</p>
             <p><strong>Lease Options:</strong> {{ listing.leaseOptions.join(' / ') }} months</p>
             <p><strong>Rooms:</strong> {{ listing.rooms }}</p>
             <p><strong>Status:</strong> {{ listing.status }}</p>
@@ -26,18 +26,6 @@
           </div>
         </div>
       </div>
-    </section>
-
-    <section class="card" style="margin-bottom: 18px;">
-      <h3 class="section-title">Decision Support</h3>
-
-      <p>
-        This listing is designed for shared living, so group planning is based on the expected number of housemates.
-      </p>
-      <p>
-        <strong>Recommendation:</strong> At least {{ recommended.minPeopleNeeded }} people are needed.
-        Estimated rent per person: SGD {{ recommended.perPerson }}
-      </p>
     </section>
 
     <section class="grid" style="grid-template-columns: 420px 1fr;">
@@ -59,10 +47,11 @@
         </div>
 
         <div class="form-block">
-          <label class="label">Preferred Lease Preference</label>
+          <label class="label">Preferred Lease</label>
           <select v-model.number="idealProfile.leasePreference">
             <option :value="6">6 months</option>
             <option :value="12">12 months</option>
+            <option :value="24">24 months</option>
           </select>
         </div>
 
@@ -160,9 +149,9 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { getListingById, getRecommendedGroupSize } from '../services/listingService'
+import { getListingById } from '../services/listingService'
 import { getDefaultProfile } from '../services/profileService'
 import {
   getOrCreateGroupForListing,
@@ -185,10 +174,6 @@ const groupActionLoading = ref(false)
 const inviteLoadingId = ref(null)
 const matchesError = ref('')
 const group = ref(null)
-
-const recommended = computed(() => {
-  return getRecommendedGroupSize(listing.value, idealProfile.budgetMax)
-})
 
 onMounted(async () => {
   try {

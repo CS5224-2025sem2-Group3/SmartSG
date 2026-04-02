@@ -1,7 +1,6 @@
 import { reactive } from 'vue'
 import { apiRequest } from '../api/apiClient'
 import { getAuthHeaders } from './authService'
-import { getCachedListingById } from './listingService'
 
 const groupState = reactive({
   items: [],
@@ -172,28 +171,6 @@ export async function confirmGroupDecision(groupId) {
   const group = groupState.items.find((item) => item.id === Number(groupId))
   if (group) {
     group.status = 'closed'
-  }
-}
-
-export function calculateGroupSummary(group) {
-  const listing = getCachedListingById(group.listingId)
-  if (!listing || !group.curPeople) return null
-
-  const budgets = group.members
-    .map((member) => Number(member.budgetMax || 0))
-    .filter((value) => value > 0)
-  const leaseValues = group.members
-    .map((member) => member.leasePreference)
-    .filter((value) => value != null)
-  const moveInValues = group.members
-    .map((member) => member.moveInWindow)
-    .filter(Boolean)
-
-  return {
-    totalBudget: budgets.reduce((sum, value) => sum + value, 0),
-    perPerson: listing.totalRent / group.curPeople,
-    leaseIntersection: leaseValues.length ? [...new Set(leaseValues)].join(', ') : '-',
-    moveInIntersection: moveInValues.length ? [...new Set(moveInValues)].join(', ') : '-'
   }
 }
 
