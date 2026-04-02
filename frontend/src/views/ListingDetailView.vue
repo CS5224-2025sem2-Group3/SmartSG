@@ -102,7 +102,7 @@
         </div>
 
         <p v-if="group" class="muted" style="margin-top: 12px;">
-          Current group: #{{ group.id }} · {{ group.curPeople }}/{{ group.requiredPeople }} people
+          Current group: {{ group.curPeople }}/{{ group.requiredPeople }} people
         </p>
 
         <div v-if="group?.members?.length" class="member-preview">

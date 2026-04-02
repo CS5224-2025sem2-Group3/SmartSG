@@ -12,7 +12,10 @@
           <RouterLink to="/search">Search</RouterLink>
           <RouterLink to="/favorites">Favorites</RouterLink>
           <RouterLink to="/groups">Groups</RouterLink>
-          <RouterLink to="/invitations">Invitations</RouterLink>
+          <RouterLink to="/invitations" class="nav-link-with-dot">
+            Invitations
+            <span v-if="pendingInvitationCount > 0" class="notification-dot" aria-label="Pending invitations"></span>
+          </RouterLink>
           <RouterLink to="/profile">My Profile</RouterLink>
           <span class="user-chip">Hi, {{ currentUserName }}</span>
           <button class="btn btn-secondary" @click="handleLogout">Logout</button>
@@ -32,18 +35,43 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { authState, isLoggedIn, logoutUser } from './services/authService'
+import {
+  getPendingInvitationCount,
+  loadInvitationsForCurrentUser
+} from './services/invitationService'
 
 const router = useRouter()
 
 const loggedIn = computed(() => isLoggedIn())
 const currentUserName = computed(() => authState.user?.name || '')
+const pendingInvitationCount = computed(() => getPendingInvitationCount())
+
+onMounted(() => {
+  if (loggedIn.value) {
+    loadInvitationBadge()
+  }
+})
+
+watch(loggedIn, (value) => {
+  if (value) {
+    loadInvitationBadge()
+  }
+})
 
 async function handleLogout() {
   await logoutUser()
   router.push('/login')
+}
+
+async function loadInvitationBadge() {
+  try {
+    await loadInvitationsForCurrentUser()
+  } catch {
+    // Ignore badge refresh failures so navigation still renders normally.
+  }
 }
 </script>
 
@@ -192,6 +220,23 @@ button {
   color: var(--primary);
   background: var(--primary-soft);
   box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.08);
+}
+
+.nav-link-with-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #ef4444;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95);
 }
 
 .page {

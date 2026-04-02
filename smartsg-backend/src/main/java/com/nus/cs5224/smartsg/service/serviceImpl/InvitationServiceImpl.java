@@ -2,7 +2,9 @@ package com.nus.cs5224.smartsg.service.serviceImpl;
 
 import com.nus.cs5224.smartsg.dto.request.SendInvitationRequest;
 import com.nus.cs5224.smartsg.dto.response.InvitationResponse;
+import com.nus.cs5224.smartsg.entity.Group;
 import com.nus.cs5224.smartsg.entity.GroupRequest;
+import com.nus.cs5224.smartsg.mapper.GroupMapper;
 import com.nus.cs5224.smartsg.mapper.InvitationMapper;
 import com.nus.cs5224.smartsg.service.GroupService;
 import com.nus.cs5224.smartsg.service.InvitationService;
@@ -22,6 +24,9 @@ public class InvitationServiceImpl implements InvitationService {
     private InvitationMapper invitationMapper;
 
     @Autowired
+    private GroupMapper groupMapper;
+
+    @Autowired
     private GroupService groupService;
 
     // GET /api/invitations/me - get all invitations received by current user
@@ -36,6 +41,20 @@ public class InvitationServiceImpl implements InvitationService {
     // POST /api/invitations - send an invitation
     @Override
     public void sendInvitation(SendInvitationRequest request, Long senderId) {
+        Group targetGroup = groupMapper.findById(request.getGroupId());
+        if (targetGroup == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found");
+        }
+
+        boolean receiverAlreadyHasGroupForListing = groupMapper.findByUserId(request.getCandidateUserId()).stream()
+                .anyMatch(group -> group.getListingId() == targetGroup.getListingId());
+        if (receiverAlreadyHasGroupForListing) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "This user already has a group for this listing"
+            );
+        }
+
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setGroupId(request.getGroupId());
         groupRequest.setSenderId(senderId);

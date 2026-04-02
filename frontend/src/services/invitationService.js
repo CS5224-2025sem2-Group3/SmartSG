@@ -45,6 +45,10 @@ export function getInvitationsForCurrentUser() {
   return invitationState.items
 }
 
+export function getPendingInvitationCount() {
+  return invitationState.items.filter((item) => item.status === 'pending').length
+}
+
 export async function acceptInvitation(invitationId) {
   await apiRequest(`/api/invitations/${Number(invitationId)}/accept`, {
     method: 'POST',

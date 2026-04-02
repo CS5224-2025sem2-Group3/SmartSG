@@ -1,8 +1,7 @@
 <template>
   <section>
     <h2 class="section-title">My Groups</h2>
-    <p class="muted">Groups that include the logged-in user.</p>
-
+    
     <div v-if="loading" class="card">
       Loading groups...
     </div>
@@ -21,7 +20,7 @@
           <div>
             <h3 style="margin: 0 0 6px;">{{ group.listingTitle }}</h3>
             <p class="muted" style="margin: 0;">
-              Group #{{ group.id }} · Status: {{ group.status }}
+              Status: {{ group.status }}
             </p>
           </div>
           <span class="badge">
