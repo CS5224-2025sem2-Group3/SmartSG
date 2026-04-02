@@ -1,7 +1,6 @@
 <template>
   <section>
     <h2 class="section-title">My Invitations</h2>
-    <p class="muted">Only invitations for the logged-in user are shown here.</p>
 
     <div v-if="loading" class="card">
       Loading invitations...
@@ -17,9 +16,8 @@
 
     <div v-else class="grid">
       <article class="card" v-for="inv in invitations" :key="inv.id">
-        <h3 style="margin-top: 0;">Invitation #{{ inv.id }}</h3>
+        <h3 style="margin-top: 0;">Invitation from {{ inv.fromUserName }}</h3>
         <p><strong>Listing:</strong> {{ inv.listingTitle }}</p>
-        <p><strong>From:</strong> {{ inv.fromUserName }}</p>
         <p><strong>Status:</strong> {{ inv.status }}</p>
 
         <div v-if="inv.status === 'pending'" style="display: flex; gap: 10px; margin-top: 14px;">

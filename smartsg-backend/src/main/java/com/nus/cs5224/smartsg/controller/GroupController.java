@@ -29,14 +29,18 @@ public class GroupController {
 
     // GET /api/groups/by-listing/:listingId - get all groups for a listing
     @GetMapping("/by-listing/{listingId}")
-    public ResponseEntity<List<GroupResponse>> getGroupsByListing(@PathVariable Long listingId) {
-        return ResponseEntity.ok(groupService.getGroupsByListing(listingId));
+    public ResponseEntity<List<GroupResponse>> getGroupsByListing(@PathVariable Long listingId,
+                                                                  HttpServletRequest httpRequest) {
+        Long currentUserId = (Long) httpRequest.getAttribute("currentUserId");
+        return ResponseEntity.ok(groupService.getGroupsByListing(listingId, currentUserId));
     }
 
     // GET /api/groups/:groupId - get group details
     @GetMapping("/{groupId}")
-    public ResponseEntity<GroupResponse> getGroup(@PathVariable int groupId) {
-        GroupResponse group = groupService.getGroup(groupId);
+    public ResponseEntity<GroupResponse> getGroup(@PathVariable int groupId,
+                                                  HttpServletRequest httpRequest) {
+        Long currentUserId = (Long) httpRequest.getAttribute("currentUserId");
+        GroupResponse group = groupService.getGroup(groupId, currentUserId);
         return ResponseEntity.ok(group);
     }
 

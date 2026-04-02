@@ -12,5 +12,9 @@ public class RecommendationResponse {
     private String name;
     private Integer budgetMax;
     private String moveInWindow;
+    private Integer leasePreference;
+    private String sleepHabit;
+    private String smoking;
+    private String cleanliness;
     private int matchScore;
 }

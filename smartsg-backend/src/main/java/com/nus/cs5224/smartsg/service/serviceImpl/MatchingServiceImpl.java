@@ -64,9 +64,13 @@ public class MatchingServiceImpl implements MatchingService {
                             ? profile.getMoveInWindow().toString() : null;
                     return new RecommendationResponse(
                             profile.getUserId(),
-                            profile.getUser() != null ? profile.getUser().getName() : null,
+                            profile.getUserName(),
                             profile.getMaxBudget(),
                             moveInStr,
+                            profile.getLeasePreference(),
+                            convertSleepHabit(profile),
+                            convertSmoking(profile),
+                            convertCleanliness(profile),
                             score
                     );
                 })
@@ -128,5 +132,27 @@ public class MatchingServiceImpl implements MatchingService {
         }
 
         return score;
+    }
+
+    private String convertSleepHabit(UserProfile profile) {
+        if (profile.getSleepSchedule() == null) return null;
+        return switch (profile.getSleepSchedule()) {
+            case early_bird -> "EarlyBird";
+            case normal -> "Regular";
+            case night_owl -> "NightOwl";
+        };
+    }
+
+    private String convertSmoking(UserProfile profile) {
+        return profile.getSmoking() == null ? null : (profile.getSmoking() ? "Yes" : "No");
+    }
+
+    private String convertCleanliness(UserProfile profile) {
+        if (profile.getCleanliness() == null) return null;
+        return switch (profile.getCleanliness()) {
+            case low -> "Low";
+            case medium -> "Average";
+            case high -> "High";
+        };
     }
 }

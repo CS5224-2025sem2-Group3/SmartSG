@@ -80,11 +80,15 @@ export async function saveUserProfile(profile) {
   return profileState.current
 }
 
+function getTodayDateString() {
+  return new Date().toISOString().slice(0, 10)
+}
+
 export function getDefaultProfile() {
   return {
     budgetMax: 1500,
-    moveInWindow: '2026-08-10',
-    leasePreference: 12,
+    moveInWindow: getTodayDateString(),
+    leasePreference: 6,
     sleepHabit: 'Regular',
     smoking: 'No',
     cleanliness: 'Average',

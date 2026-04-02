@@ -14,7 +14,7 @@ public interface MatchMapper {
      */
     @Select("SELECT up.user_id, up.move_in_window, up.lease_preference, " +
             "up.sleep_schedule, up.cleanliness, up.smoking, up.gender, up.max_budget, " +
-            "u.name " +
+            "u.name AS user_name " +
             "FROM UserProfile up " +
             "JOIN \"User\" u ON up.user_id = u.user_id " +
             "WHERE up.user_id != #{currentUserId} " +
@@ -23,9 +23,13 @@ public interface MatchMapper {
             ")")
     @Results({
             @Result(property = "userId", column = "user_id"),
+            @Result(property = "userName", column = "user_name"),
             @Result(property = "moveInWindow", column = "move_in_window"),
             @Result(property = "leasePreference", column = "lease_preference"),
             @Result(property = "sleepSchedule", column = "sleep_schedule"),
+            @Result(property = "cleanliness", column = "cleanliness"),
+            @Result(property = "smoking", column = "smoking"),
+            @Result(property = "gender", column = "gender"),
             @Result(property = "maxBudget", column = "max_budget")
     })
     List<UserProfile> findCandidates(@Param("groupId") int groupId,

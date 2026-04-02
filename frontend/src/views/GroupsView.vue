@@ -1,8 +1,7 @@
 <template>
   <section>
     <h2 class="section-title">My Groups</h2>
-    <p class="muted">Groups that include the logged-in user.</p>
-
+    
     <div v-if="loading" class="card">
       Loading groups...
     </div>
@@ -21,7 +20,7 @@
           <div>
             <h3 style="margin: 0 0 6px;">{{ group.listingTitle }}</h3>
             <p class="muted" style="margin: 0;">
-              Group #{{ group.id }} · Status: {{ group.status }}
+              Status: {{ group.status }}
             </p>
           </div>
           <span class="badge">
@@ -29,9 +28,29 @@
           </span>
         </div>
 
+        <div v-if="group.members.length" class="member-block">
+          <h4>Members</h4>
+          <ul>
+            <li v-for="member in group.members" :key="member.userId">
+              {{ member.name }}
+              <span v-if="member.role"> · {{ member.role }}</span>
+              <span v-if="member.budgetMax"> · Budget {{ member.budgetMax }}</span>
+              <span v-if="member.moveInWindow"> · {{ member.moveInWindow }}</span>
+              <span v-if="member.leasePreference"> · {{ member.leasePreference }} months</span>
+            </li>
+          </ul>
+        </div>
+
         <div v-if="calculateGroupSummary(group)" class="summary-block">
           <h4>Group Summary</h4>
+          <p><strong>Total Budget:</strong> SGD {{ calculateGroupSummary(group).totalBudget }}</p>
           <p><strong>Current Rent Per Person:</strong> SGD {{ calculateGroupSummary(group).perPerson.toFixed(0) }}</p>
+          <p v-if="group.members.length > 1">
+            <strong>Lease Info:</strong> {{ calculateGroupSummary(group).leaseIntersection }}
+          </p>
+          <p v-if="group.members.length > 1">
+            <strong>Move-in Info:</strong> {{ calculateGroupSummary(group).moveInIntersection }}
+          </p>
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
@@ -41,17 +60,17 @@
 
           <button
             class="btn btn-primary"
-            :disabled="group.curPeople < group.requiredPeople || group.status === 'closed'"
+            :disabled="group.curPeople < group.requiredPeople || group.status === 'closed' || !group.currentUserIsLeader"
             @click="handleConfirm(group.id)"
           >
             {{ group.status === 'closed' ? 'Confirmed' : 'Confirm Listing' }}
           </button>
 
-          <button class="btn btn-danger" @click="handleDelete(group.id)">
+          <button v-if="group.currentUserIsLeader" class="btn btn-danger" @click="handleDelete(group.id)">
             Delete Group
           </button>
 
-          <button class="btn btn-secondary" @click="handleLeave(group.id)">
+          <button v-else class="btn btn-secondary" @click="handleLeave(group.id)">
             Leave Group
           </button>
         </div>

@@ -1,6 +1,7 @@
 package com.nus.cs5224.smartsg.service.serviceImpl;
 
 import com.nus.cs5224.smartsg.dto.request.CreateGroupRequest;
+import com.nus.cs5224.smartsg.dto.response.GroupMemberResponse;
 import com.nus.cs5224.smartsg.dto.response.GroupResponse;
 import com.nus.cs5224.smartsg.entity.Group;
 import com.nus.cs5224.smartsg.entity.GroupMember;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,7 +50,7 @@ public class GroupServiceImpl implements GroupService {
         member.setRole("leader");
         groupMapper.insertMember(member);
 
-        return toGroupResponse(group, listing.getTitle());
+        return toGroupResponse(group, listing.getTitle(), userId);
     }
 
     // Join a group
@@ -93,14 +95,14 @@ public class GroupServiceImpl implements GroupService {
 
     // Get group details
     @Override
-    public GroupResponse getGroup(int groupId) {
+    public GroupResponse getGroup(int groupId, Long currentUserId) {
         Group group = groupMapper.findById(groupId);
         if (group == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found");
         }
         Listing listing = listingMapper.findById((long) group.getListingId());
         String title = listing != null ? listing.getTitle() : null;
-        return toGroupResponse(group, title);
+        return toGroupResponse(group, title, currentUserId);
     }
 
     // Get all groups the current user is in
@@ -111,19 +113,19 @@ public class GroupServiceImpl implements GroupService {
                 .map(g -> {
                     Listing listing = listingMapper.findById((long) g.getListingId());
                     String title = listing != null ? listing.getTitle() : null;
-                    return toGroupResponse(g, title);
+                    return toGroupResponse(g, title, userId);
                 })
                 .collect(Collectors.toList());
     }
 
     // Get all groups for a given listing
     @Override
-    public List<GroupResponse> getGroupsByListing(Long listingId) {
+    public List<GroupResponse> getGroupsByListing(Long listingId, Long currentUserId) {
         List<Group> groups = groupMapper.findByListingId(listingId);
         Listing listing = listingMapper.findById(listingId);
         String title = listing != null ? listing.getTitle() : null;
         return groups.stream()
-                .map(g -> toGroupResponse(g, title))
+                .map(g -> toGroupResponse(g, title, currentUserId))
                 .collect(Collectors.toList());
     }
 
@@ -159,7 +161,9 @@ public class GroupServiceImpl implements GroupService {
     }
 
     // Entity → Response DTO
-    private GroupResponse toGroupResponse(Group group, String listingTitle) {
+    private GroupResponse toGroupResponse(Group group, String listingTitle, Long currentUserId) {
+        List<GroupMember> members = groupMapper.findMembersByGroupId(group.getGroupId());
+
         GroupResponse response = new GroupResponse();
         response.setGroupId(group.getGroupId());
         response.setListingId((int) group.getListingId());
@@ -167,6 +171,38 @@ public class GroupServiceImpl implements GroupService {
         response.setStatus(group.getStatus());
         response.setRequiredPeople(group.getMaxPeople());
         response.setCurPeople(group.getCurPeople());
+        response.setMembers(
+                members.stream()
+                        .map(this::toGroupMemberResponse)
+                        .collect(Collectors.toList())
+        );
+
+        GroupMember leader = members.stream()
+                .filter(member -> "leader".equals(member.getRole()))
+                .findFirst()
+                .orElse(null);
+        response.setLeaderUserId(leader != null ? leader.getUserId() : null);
+
+        GroupMember currentUserMember = currentUserId == null
+                ? null
+                : members.stream()
+                        .filter(member -> Objects.equals(member.getUserId(), currentUserId))
+                        .findFirst()
+                        .orElse(null);
+        response.setCurrentUserRole(currentUserMember != null ? currentUserMember.getRole() : null);
+        response.setCurrentUserIsLeader(currentUserMember != null && "leader".equals(currentUserMember.getRole()));
+
+        return response;
+    }
+
+    private GroupMemberResponse toGroupMemberResponse(GroupMember member) {
+        GroupMemberResponse response = new GroupMemberResponse();
+        response.setUserId(member.getUserId());
+        response.setName(member.getName());
+        response.setRole(member.getRole());
+        response.setBudgetMax(member.getBudgetMax());
+        response.setMoveInWindow(member.getMoveInWindow() != null ? member.getMoveInWindow().toString() : null);
+        response.setLeasePreference(member.getLeasePreference());
         return response;
     }
 }
