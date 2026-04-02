@@ -133,22 +133,3 @@ export async function searchListings(filters) {
   cacheListings(normalized)
   return normalized
 }
-
-export function getRecommendedGroupSize(listing, budgetMax) {
-  if (!listing) return { minPeopleNeeded: 1, perPerson: 0 }
-
-  for (let people = 1; people <= Math.max(listing.rooms, 6); people += 1) {
-    const perPerson = listing.totalRent / people
-    if (perPerson <= Number(budgetMax || 999999)) {
-      return {
-        minPeopleNeeded: people,
-        perPerson: perPerson.toFixed(0)
-      }
-    }
-  }
-
-  return {
-    minPeopleNeeded: listing.rooms,
-    perPerson: (listing.totalRent / listing.rooms).toFixed(0)
-  }
-}
