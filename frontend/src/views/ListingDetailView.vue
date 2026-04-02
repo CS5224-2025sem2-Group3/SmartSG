@@ -15,7 +15,7 @@
 
           <div class="hero-stats">
             <p><strong>Total Rent:</strong> SGD {{ listing.totalRent }}</p>
-            <p><strong>Available From:</strong> {{ listing.availableFrom }} ({{ listing.moveInLabel }})</p>
+            <p><strong>Available From:</strong> {{ listing.availableFrom }}</p>
             <p><strong>Lease Options:</strong> {{ listing.leaseOptions.join(' / ') }} months</p>
             <p><strong>Rooms:</strong> {{ listing.rooms }}</p>
             <p><strong>Status:</strong> {{ listing.status }}</p>
