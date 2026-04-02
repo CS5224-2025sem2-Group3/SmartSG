@@ -4,7 +4,9 @@ import com.nus.cs5224.smartsg.dto.request.SendInvitationRequest;
 import com.nus.cs5224.smartsg.dto.response.InvitationResponse;
 import com.nus.cs5224.smartsg.entity.GroupRequest;
 import com.nus.cs5224.smartsg.mapper.InvitationMapper;
+import com.nus.cs5224.smartsg.service.GroupService;
 import com.nus.cs5224.smartsg.service.InvitationService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Autowired
     private InvitationMapper invitationMapper;
+
+    @Autowired
+    private GroupService groupService;
 
     // GET /api/invitations/me - get all invitations received by current user
     @Override
@@ -40,11 +45,14 @@ public class InvitationServiceImpl implements InvitationService {
 
     // POST /api/invitations/:id/accept
     @Override
+    @Transactional
     public void acceptInvitation(int invitationId, Long userId) {
         GroupRequest request = getAndValidate(invitationId, userId);
         if (!"pending".equals(request.getStatus())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invitation is no longer pending");
         }
+
+        groupService.joinGroup(userId, request.getGroupId());
         invitationMapper.updateStatus(invitationId, "accepted");
     }
 
