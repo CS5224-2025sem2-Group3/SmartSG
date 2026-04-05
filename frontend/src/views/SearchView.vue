@@ -31,6 +31,19 @@
       <div class="field-row">
         <label class="label">Move-in Date</label>
         <input class="input" type="date" v-model="filters.moveInWindow"/>
+        <p class="quick-select-label">Quick Select</p>
+        <div class="quick-chip-row">
+          <button
+            v-for="intake in standardIntakes"
+            :key="intake.value"
+            type="button"
+            class="quick-chip"
+            :class="{ active: filters.moveInWindow === intake.value }"
+            @click="selectStandardIntake(intake.value)"
+          >
+            {{ intake.label }}
+          </button>
+        </div>
       </div>
 
       <div class="field-row">
@@ -139,6 +152,10 @@ import { UNIVERSITIES } from '../constants/universities'
 import { loadFavorites, toggleFavorite, isFavorite } from '../services/favoriteService'
 
 const universities = UNIVERSITIES
+const standardIntakes = [
+  { label: 'AY26/27 Semester 1', value: '2026-08-01' },
+  { label: 'AY26/27 Semester 2', value: '2027-01-01' }
+]
 
 const filters = reactive({
   university: 'NUS',
@@ -169,6 +186,10 @@ function syncAppliedFilters() {
   appliedFilters.moveInWindow = filters.moveInWindow
   appliedFilters.leaseLength = filters.leaseLength
   appliedFilters.facilities = [...filters.facilities]
+}
+
+function selectStandardIntake(date) {
+  filters.moveInWindow = date
 }
 
 async function runSearch() {
@@ -286,6 +307,45 @@ onMounted(async () => {
 
 .field-row {
   margin-bottom: 14px;
+}
+
+.quick-chip-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.quick-select-label {
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.quick-chip {
+  border: 1px solid rgba(15, 118, 110, 0.14);
+  background: rgba(221, 246, 239, 0.75);
+  color: #0f766e;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.quick-chip:hover {
+  transform: translateY(-1px);
+  background: rgba(221, 246, 239, 0.95);
+}
+
+.quick-chip.active {
+  background: rgba(221, 246, 239, 0.96);
+  border-color: rgba(15, 118, 110, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.08);
 }
 
 .field-row-last {
