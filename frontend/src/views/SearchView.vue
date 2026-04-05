@@ -60,10 +60,6 @@
         <label class="label">Facilities</label>
 
         <label class="checkbox-row">
-          <input type="checkbox" value="Near MRT" v-model="filters.facilities" />
-          Near MRT
-        </label>
-        <label class="checkbox-row">
           <input type="checkbox" value="Fully Furnished" v-model="filters.facilities" />
           Fully Furnished
         </label>
