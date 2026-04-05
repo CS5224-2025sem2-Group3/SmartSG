@@ -116,10 +116,10 @@ export async function searchListings(filters) {
 
   const params = new URLSearchParams()
 
-  if (budgetMax) params.set('budgetMax', String(budgetMax))
+  if (budgetMax != null && budgetMax !== '') params.set('budgetMax', String(budgetMax))
   if (moveInWindow) params.set('availableFrom', moveInWindow)
   if (university) params.set('university', university)
-  if (commuteMax) params.set('distance', Number(commuteMax).toFixed(1))
+  if (commuteMax != null && commuteMax !== '') params.set('distance', Number(commuteMax).toFixed(1))
 
   const query = params.toString()
   const listings = await apiRequest(`/api/listings${query ? `?${query}` : ''}`)

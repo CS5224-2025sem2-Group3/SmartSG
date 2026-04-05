@@ -16,7 +16,7 @@ public interface ListingMapper {
             "FROM Listing " +
             "WHERE 1=1 " +
             "<if test='filter.budgetMax != null'> AND rent_per_tenant &lt;= #{filter.budgetMax} </if>" +
-            "<if test='filter.availableFrom != null'> AND available_from &gt;= #{filter.availableFrom} </if>" +
+            "<if test='filter.availableFrom != null'> AND available_from &lt;= #{filter.availableFrom} </if>" +
             "<if test='filter.university != null and filter.distance != null'> " +
             "   <choose>" +
             "       <when test='filter.university == \"NUS\"'> AND (uni_distances-&gt;&gt;'NUS')::float &lt;= #{filter.distance} </when>" +
