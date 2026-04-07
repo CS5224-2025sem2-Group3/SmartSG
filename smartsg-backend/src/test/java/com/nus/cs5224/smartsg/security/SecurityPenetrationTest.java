@@ -165,38 +165,4 @@ class SecurityPenetrationTest {
         System.out.println("✓ VERIFIED: Parameter validation enforces constraints");
     }
 
-    /**
-     * SUMMARY: Injection & Persistence Layer Security Audit
-     */
-    @Test
-    void testInjectionSecuritySummary() {
-        System.out.println("");
-        System.out.println("=== INJECTION & PERSISTENCE LAYER SECURITY SUMMARY ===");
-        System.out.println("");
-        System.out.println("TESTS PASSED (4):");
-        System.out.println("  ✓ SQL Injection on Budget Parameter - PROTECTED");
-        System.out.println("  ✓ SQL Injection on University Parameter - PROTECTED");
-        System.out.println("  ✓ Sensitive Data (email, passwordHash) - NOT EXPOSED");
-        System.out.println("  ✓ Parameter Validation - ENFORCED");
-        System.out.println("");
-        System.out.println("SECURITY MECHANISMS:");
-        System.out.println("  1. Parameterized Queries - Uses JPA/Hibernate to prevent SQL injection");
-        System.out.println("  2. Input Validation - Spring validation annotations on parameters");
-        System.out.println("  3. DTOs - Response objects only expose non-sensitive fields");
-        System.out.println("  4. Type Safety - Spring converts parameters to correct types");
-        System.out.println("");
-        System.out.println("PENETRATION TEST RESULTS:");
-        System.out.println("  ✓ Malicious queries return 200/400, never 500 (SQL error)");
-        System.out.println("  ✓ Invalid parameters rejected with 400 Bad Request");
-        System.out.println("  ✓ Response contains valid JSON, not error messages");
-        System.out.println("  ✓ No password hashes, emails, or user credentials exposed");
-        System.out.println("");
-        System.out.println("AUDIT CONCLUSION:");
-        System.out.println("  ✓ Listing search endpoints protected against injection");
-        System.out.println("  ✓ Sensitive data properly secured in persistence layer");
-        System.out.println("  ✓ Parameter validation enforced at controller level");
-        System.out.println("");
-        
-        assertTrue(true, "Injection security audit passed");
-    }
 }
