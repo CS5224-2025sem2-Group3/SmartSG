@@ -128,55 +128,6 @@ SmartSG/
 
 ---
 
-## 🧪 Testing
-
-The project includes automated test suites covering **Functional**, **Security**, and **System Performance** testing.
-
-### Functional Tests — JUnit 5 + Mockito
-
-Unit tests for all core service implementations, validating business logic in isolation with mocked dependencies.
-
-| Test Class | Coverage |
-|---|---|
-| `AuthServiceImplTest` | Registration, login, duplicate email detection, case-insensitive email handling |
-| `FavoriteServiceImplTest` | Add / remove / list favourite listings |
-| `GroupServiceImplTest` | Group creation, join, membership management, role-based operations |
-| `InvitationServiceImplTest` | Send, accept, reject invitations with validation |
-| `MatchingServiceImplTest` | Roommate compatibility scoring and recommendation logic |
-| `ProfileServiceImplTest` | Profile CRUD and lifestyle preference validation |
-
-**Run:**
-
-```bash
-cd smartsg-backend
-./mvnw test
-```
-
-### Security Tests — JWT Validation
-
-Dedicated tests for the JWT authentication mechanism, ensuring token integrity and security boundaries.
-
-| Test Class | Coverage |
-|---|---|
-| `JwtUtilTest` | Token generation & parsing, valid/invalid token validation, token expiry enforcement |
-
-### System Performance Tests — Locust
-
-A Python-based load test using [Locust](https://locust.io/) to stress-test API endpoints under concurrent user load.
-
-**Run:**
-
-```bash
-locust -f smartsg-backend/src/test/java/com/nus/cs5224/smartsg/load-test.py \
-  --host "http://<your-host>" \
-  --users 200 \
-  --spawn-rate 10 \
-  --headless \
-  --run-time 300s
-```
-
----
-
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -287,6 +238,55 @@ All endpoints (except Auth) require a valid JWT token in the `Authorization: Bea
 | Auth | JWT (jjwt 0.12.6) |
 | API Docs | Springdoc OpenAPI / Swagger UI |
 | Build | Maven (backend), npm (frontend) |
+
+---
+
+## 🧪 Testing
+
+The project includes automated test suites covering **Functional**, **Security**, and **System Performance** testing.
+
+### Functional Tests — JUnit 5 + Mockito
+
+Unit tests for all core service implementations, validating business logic in isolation with mocked dependencies.
+
+| Test Class | Coverage |
+|---|---|
+| `AuthServiceImplTest` | Registration, login, duplicate email detection, case-insensitive email handling |
+| `FavoriteServiceImplTest` | Add / remove / list favourite listings |
+| `GroupServiceImplTest` | Group creation, join, membership management, role-based operations |
+| `InvitationServiceImplTest` | Send, accept, reject invitations with validation |
+| `MatchingServiceImplTest` | Roommate compatibility scoring and recommendation logic |
+| `ProfileServiceImplTest` | Profile CRUD and lifestyle preference validation |
+
+**Run:**
+
+```bash
+cd smartsg-backend
+./mvnw test
+```
+
+### Security Tests — JWT Validation
+
+Dedicated tests for the JWT authentication mechanism, ensuring token integrity and security boundaries.
+
+| Test Class | Coverage |
+|---|---|
+| `JwtUtilTest` | Token generation & parsing, valid/invalid token validation, token expiry enforcement |
+
+### System Performance Tests — Locust
+
+A Python-based load test using [Locust](https://locust.io/) to stress-test API endpoints under concurrent user load.
+
+**Run:**
+
+```bash
+locust -f smartsg-backend/src/test/java/com/nus/cs5224/smartsg/load-test.py \
+  --host "http://<your-host>" \
+  --users 200 \
+  --spawn-rate 10 \
+  --headless \
+  --run-time 300s
+```
 
 ---
 
