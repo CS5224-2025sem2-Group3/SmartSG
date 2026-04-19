@@ -312,9 +312,9 @@ AI was used to assist in developing the backend codebase, including code generat
 
 <!-- TODO: Please fill in the AI declaration for the frontend -->
 
-**AI Tool Used:** _[To be filled in]_
+**AI Tool Used:** OpenAI Codex (GPT-5-based)
 
-_[To be filled in]_
+AI tool used to assist in developing the frontend codebase, such as improving code structure, and assisting with debugging or implementation suggestions. All AI-assisted content was carefully reviewed, tested, and edited before inclusion in the final submission. The ideation, user flow, and core functionalities were developed entirely through team discussion and were not generated with AI assistance.
 
 ---
 
