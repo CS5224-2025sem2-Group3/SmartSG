@@ -296,6 +296,48 @@ locust -f smartsg-backend/src/test/java/com/nus/cs5224/smartsg/load-test.py \
 
 ---
 
+## 🤖 AI Declaration
+
+This section declares the use of AI tools in the development of this project, as required by NUS CS5224 course policy.
+
+### Backend — `smartsg-backend/`
+
+**AI Tool Used:** Claude Opus 4.6 (Anthropic)
+
+AI was used to assist in developing the backend codebase, including code generation, debugging, writing unit tests, and drafting documentation. All AI-generated code was reviewed, tested, and validated by team members. Core business requirements, API design, and architectural decisions were defined by the team.
+
+---
+
+### Frontend — `frontend/`
+
+<!-- TODO: Please fill in the AI declaration for the frontend -->
+
+**AI Tool Used:** _[To be filled in]_
+
+_[To be filled in]_
+
+---
+
+### Database — `db/`
+
+<!-- TODO: Please fill in the AI declaration for the database -->
+
+**AI Tool Used:** _[To be filled in]_
+
+_[To be filled in]_
+
+---
+
+### Deployment & Infrastructure
+
+<!-- TODO: Please fill in the AI declaration for deployment/infrastructure -->
+
+**AI Tool Used:** _[To be filled in]_
+
+_[To be filled in]_
+
+---
+
 ## 📄 License
 
 This project is developed for academic purposes as part of the NUS CS5224 course.
