@@ -318,26 +318,6 @@ AI tool used to assist in developing the frontend codebase, such as improving co
 
 ---
 
-### Database — `db/`
-
-<!-- TODO: Please fill in the AI declaration for the database -->
-
-**AI Tool Used:** _[To be filled in]_
-
-_[To be filled in]_
-
----
-
-### Deployment & Infrastructure
-
-<!-- TODO: Please fill in the AI declaration for deployment/infrastructure -->
-
-**AI Tool Used:** _[To be filled in]_
-
-_[To be filled in]_
-
----
-
 ## 📄 License
 
 This project is developed for academic purposes as part of the NUS CS5224 course.
